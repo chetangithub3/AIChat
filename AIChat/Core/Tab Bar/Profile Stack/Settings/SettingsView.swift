@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(AppState.self) private var root
     var body: some View {
         NavigationStack {
@@ -23,7 +24,10 @@ struct SettingsView: View {
     }
     
     private func onSignOut() {
-        root.updateViewState(showOnboarding: true)
+        Task {
+            dismiss()
+            root.updateViewState(showOnboarding: true)
+        }
     }
 }
 
