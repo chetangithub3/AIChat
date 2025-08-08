@@ -235,6 +235,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		61AA5E452E41BA1C00BE26CE /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -248,7 +249,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"$CI\" == \"true\" ]; then\n    echo \"Running in Xcode Cloud. Skipping SwiftLint.\"\nelse\n    # Add Homebrew to PATH on Apple Silicon\n    if [[ \"$(uname -m)\" == \"arm64\" ]]; then\n        export PATH=\"/opt/homebrew/bin:$PATH\"\n    fi\n\n    # Skip SwiftLint when rendering SwiftUI previews\n    if [ \"$XCODE_RUNNING_FOR_PREVIEWS\" != \"1\" ]; then\n        if which swiftlint > /dev/null; then\n            swiftlint --fix && swiftlint\n        else\n            echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n        fi\n    fi\nfi\n";
+			shellScript = "if [ \"$CI\" == \"true\" ]; then\n    echo \"Running in Xcode Cloud. Skipping SwiftLint.\"\nelse\n    # Add Homebrew to PATH on Apple Silicon\n    if [[ \"$(uname -m)\" == \"arm64\" ]]; then\n        export PATH=\"/opt/homebrew/bin:$PATH\"\n    fi\n\n    # Skip SwiftLint when rendering SwiftUI previews\n    if [ \"$XCODE_RUNNING_FOR_PREVIEWS\" != \"1\" ]; then\n        if which swiftlint > /dev/null; then\n            swiftlint\n        else\n            echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n        fi\n    fi\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

@@ -9,8 +9,8 @@ import SwiftUI
 
 struct AppViewBuilder<TabbarView: View, OnboardingView: View>: View {
     var showOnboardingView: Bool
-    @ViewBuilder var tabbarView: TabbarView
     @ViewBuilder var onboardingView: OnboardingView
+    @ViewBuilder var tabbarView: TabbarView
     
     var body: some View {
         ZStack {
@@ -31,16 +31,15 @@ private struct PreviewView: View {
     var body: some View {
         AppViewBuilder(
             showOnboardingView: showOnboarding,
-            tabbarView: {
-                ZStack {
-                    Color.red.ignoresSafeArea()
-                    Text("Tabbar view")
-                }
-            },
             onboardingView: {
                 ZStack {
                     Color.blue.ignoresSafeArea()
                     Text("Onboarding view")
+                }
+            }, tabbarView: {
+                ZStack {
+                    Color.red.ignoresSafeArea()
+                    Text("Tabbar view")
                 }
             }
         )
