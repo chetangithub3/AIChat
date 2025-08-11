@@ -8,43 +8,33 @@
 import SwiftUI
 
 struct OnboardingColorPickerView: View {
-    @State var selectedColor: Color? = nil
-    let avatarColors: [Color] = [
-        .red,
-        .orange,
-        .yellow,
-        .green,
-        .mint,
-        .black,
-        .indigo,
-        .purple,
-        .pink,
-        .gray
-    ]
-    
+    @State var selectedColor: Color?
+    private let avatarColors: [Color] = [
+           .red, .orange, .yellow, .green, .mint,
+           .black, .indigo, .purple, .pink, .gray
+       ]
+    private let columns = Array(
+            repeating: GridItem(.flexible(minimum: 50), spacing: 16, alignment: .center),
+            count: 3
+        )
+
     var body: some View {
         ScrollView {
             LazyVGrid(
-                columns: Array(
-                    repeating: GridItem(
-                        .flexible(
-                            minimum: 50
-                        ),
-                        spacing: 16,
-                        alignment: .center
-                    ),
-                    count: 3
-                ),
-                alignment: .center,
+                columns: columns,
                 spacing: 24,
                 pinnedViews: .sectionHeaders
             ) {
                 Section {
-                    ForEach(
-                        avatarColors,
-                        id: \.self
-                    ) { color in
-                        colorComponent(color: color)
+                    ForEach(avatarColors, id: \.self) { color in
+                        ColorCirle(color: color, isSelected: selectedColor == color) {
+                            if selectedColor == color {
+                               selectedColor = nil
+                            } else {
+                                selectedColor = color
+                            }
+                  
+                        }
                     }
                 } header: {
                   scrollViewHeader
@@ -52,22 +42,24 @@ struct OnboardingColorPickerView: View {
             }
             .padding()
         }
+        .toolbarVisibility(.hidden, for: .navigationBar)
         .safeAreaInset(edge: .bottom) {
-            if selectedColor != nil {
-                footerButton
+            if let color = selectedColor {
+                footerButton(color: color)
             }
         }
-        .background(.white)
+        
         .transition(AnyTransition.move(edge: .bottom))
     }
 
-    private var footerButton: some View {
-        Button {
-            
+    private func footerButton(color: Color) -> some View {
+        NavigationLink {
+            OnboardingCompleteView(selectedColor: color)
         } label: {
             Text("Continue")
                 .mainButtonStyle()
         }
+        .background(Color(.systemBackground))
     }
 
     private var scrollViewHeader: some View {
@@ -75,19 +67,18 @@ struct OnboardingColorPickerView: View {
             .font(.headline)
     }
 
-    private func colorComponent(color: Color) -> some View {
-        ZStack {
-            Circle().fill(Color.accentColor)
+    private struct ColorCirle: View {
+        let color: Color
+        let isSelected: Bool
+        let onTap: () -> Void
+        
+        var body: some View {
             Circle()
-                .fill(
-                    color
-                )
-                .onTapGesture {
-               
-                        selectedColor = color
-                }
-                .padding(selectedColor == color ? 16 : 0)
-                .animation(.bouncy, value: selectedColor)
+                .fill(color)
+                .padding(isSelected ? 16 : 0)
+                .background(Circle().fill(Color.accentColor))
+                .onTapGesture(perform: onTap)
+                .animation(.bouncy, value: isSelected)
         }
     }
 }

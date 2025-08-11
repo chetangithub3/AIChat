@@ -10,11 +10,12 @@ import SwiftUI
 struct OnboardingIntroView: View {
     var body: some View {
         VStack {
-           introSection
-            .frame(maxHeight: .infinity)
-            .padding()
+            introSection
+                .frame(maxHeight: .infinity)
+                .padding()
             continueButton
         }
+        .toolbarVisibility(.hidden, for: .navigationBar)
     }
 
     private var continueButton: some View {
