@@ -20,13 +20,14 @@ struct WelcomeView: View {
                 policyLinks
                     .padding(.top)
             }
+            .toolbarVisibility(.hidden, for: .navigationBar)
         }
     }
     
     private var signInButtons: some View {
         VStack(spacing: 4) {
             NavigationLink {
-                OnboardingCompleteView()
+                OnboardingColorPickerView()
             } label: {
                 Text("Get Started")
                     .mainButtonStyle()
@@ -73,5 +74,8 @@ struct WelcomeView: View {
 }
 
 #Preview {
-    WelcomeView()
+    NavigationStack {
+        WelcomeView()
+    }
+    .environment(AppState())
 }
