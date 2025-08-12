@@ -23,7 +23,6 @@ struct WelcomeView: View {
             .toolbarVisibility(.hidden, for: .navigationBar)
         }
     }
-    
     private var signInButtons: some View {
         VStack(spacing: 4) {
             NavigationLink {
@@ -51,7 +50,6 @@ struct WelcomeView: View {
             Circle()
                 .fill(Color.gray)
                 .frame(width: 10, height: 10)
-            
             Link(destination: URL(string: Constants.privacyPolicyString)!) {
                 Text("Privacy Policy")
             }

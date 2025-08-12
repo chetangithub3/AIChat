@@ -26,7 +26,6 @@ struct OnboardingIntroView: View {
                 .mainButtonStyle()
         }
     }
-    
     private var introSection: some View {
         Group {
             Text("Make your")

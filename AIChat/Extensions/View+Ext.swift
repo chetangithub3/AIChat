@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension View {
-    
     func mainButtonStyle() -> some View {
         self
             .font(.headline)

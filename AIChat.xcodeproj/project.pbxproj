@@ -105,9 +105,9 @@
 			buildConfigurationList = 61AA5E2C2E41AF0300BE26CE /* Build configuration list for PBXNativeTarget "AIChat" */;
 			buildPhases = (
 				61AA5E072E41AF0100BE26CE /* Sources */,
+				61AA5E452E41BA1C00BE26CE /* ShellScript */,
 				61AA5E082E41AF0100BE26CE /* Frameworks */,
 				61AA5E092E41AF0100BE26CE /* Resources */,
-				61AA5E452E41BA1C00BE26CE /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -245,7 +245,7 @@
 		61AA5E452E41BA1C00BE26CE /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -258,7 +258,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"$CI\" == \"true\" ]; then\n    echo \"Running in Xcode Cloud. Skipping SwiftLint.\"\nelse\n    # Add Homebrew to PATH on Apple Silicon\n    if [[ \"$(uname -m)\" == \"arm64\" ]]; then\n        export PATH=\"/opt/homebrew/bin:$PATH\"\n    fi\n\n    # Skip SwiftLint when rendering SwiftUI previews\n    if [ \"$XCODE_RUNNING_FOR_PREVIEWS\" != \"1\" ]; then\n        if which swiftlint > /dev/null; then\n            swiftlint\n        else\n            echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n        fi\n    fi\nfi\n";
+			shellScript = "if [ \"$CI\" == \"true\" ]; then\n    echo \"Running in Xcode Cloud. Skipping SwiftLint.\"\nelse\n    if [[ \"$(uname -m)\" == \"arm64\" ]]; then\n        export PATH=\"/opt/homebrew/bin:$PATH\"\n    fi\n\n    if [ \"$XCODE_RUNNING_FOR_PREVIEWS\" != \"1\" ]; then\n        if which swiftlint >/dev/null; then\n            swiftlint --config \"${SRCROOT}/.swiftlint.yml\"\n        else\n            echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n        fi\n    fi\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

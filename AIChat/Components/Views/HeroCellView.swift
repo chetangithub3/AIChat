@@ -11,7 +11,7 @@ struct HeroCellView: View {
     var imageStringURL: String? = Constants.randomImageURLString
     var title: String? = "This is the title"
     var subTitle: String? = "This is the subtitle which goes here"
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             if let imageStringURL = imageStringURL {
@@ -21,7 +21,6 @@ struct HeroCellView: View {
         }
         .cornerRadius(16)
     }
-    
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 4) {
             if let title = title {
@@ -52,5 +51,4 @@ struct HeroCellView: View {
 #Preview {
     HeroCellView()
         .frame(width: 300, height: 200)
-       
 }

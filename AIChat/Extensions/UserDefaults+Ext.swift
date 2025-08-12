@@ -8,11 +8,11 @@
 import SwiftUI
 
 extension UserDefaults {
-    
+
     private struct Keys {
         static let showOnboarding: String = "showOnboarding"
     }
-    
+
     static var showOnboarding: Bool {
         get {
             guard let _ = standard.object(forKey: Keys.showOnboarding) else {

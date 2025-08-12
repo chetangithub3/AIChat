@@ -11,7 +11,6 @@ struct OnboardingCompleteView: View {
     var selectedColor: Color
     @Environment(AppState.self) private var root
     @State var isUpdatingProfileColor: Bool = false
-    
     var body: some View {
         VStack {
             titleAndDescription

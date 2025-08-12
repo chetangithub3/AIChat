@@ -28,5 +28,4 @@ struct ImageLoaderView: View {
 #Preview {
     ImageLoaderView()
         .frame(width: 200, height: 300)
-    
 }

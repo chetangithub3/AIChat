@@ -1,15 +1,39 @@
+opt_in_rules:
+  - vertical_whitespace
+  - opening_brace
+  - statement_position
+
+# Length rules
 line_length:
-  warning: 300  # Set a warning when lines exceed 300 characters
+  warning: 300
+
 type_body_length:
-  warning: 500  # Set a warning when a type body exceeds 500 lines
+  warning: 500
+
 file_length:
-  warning: 750  # Set a warning when a file exceeds 750 lines
+  warning: 750
+
+# Opening brace style
+opening_brace:
+  severity: warning
+
+# Statement position
+statement_position:
+  severity: warning
 
 disabled_rules:
-  - trailing_whitespace
+  - unused_optional_binding
+# Custom rules for SwiftUI-specific styling
+custom_rules:
+  no_blank_line_before_modifier:
+    name: "No Blank Line Before Modifier"
+    regex: '\n\s*\n\s*\.[a-zA-Z_]+\b'
+    message: "Don't put a blank line before a chained modifier or method."
+    severity: error
 
+
+# Exclude generated or external files
 excluded:
-  - .git
   - Pods
   - Carthage
-
+  - Generated

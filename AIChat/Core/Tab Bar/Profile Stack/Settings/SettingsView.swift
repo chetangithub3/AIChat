@@ -22,7 +22,6 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
     }
-    
     private func onSignOut() {
         Task {
             dismiss()

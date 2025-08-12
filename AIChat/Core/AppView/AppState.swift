@@ -14,11 +14,9 @@ class AppState {
             UserDefaults.showOnboarding = showOnboardingView
         }
     }
-    
     init(showOnboardingView: Bool = UserDefaults.showOnboarding) {
         self.showOnboardingView = showOnboardingView
     }
-    
     func updateViewState(showOnboarding: Bool) {
         showOnboardingView = showOnboarding
     }
