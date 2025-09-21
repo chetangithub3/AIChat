@@ -7,15 +7,10 @@
 
 import SwiftUI
 struct ExploreView: View {
-    let avatar = AvatarModel.mock
     var body: some View {
         NavigationStack {
-            HeroCellView(
-                imageStringURL: avatar.profileImageName,
-                title: avatar.name,
-                subTitle: avatar.characterDescription
-            )
-            .frame(maxHeight: Screen.height * 0.5)
+            CarouselView(items: AvatarModel.mocks)
+            .frame(maxHeight: Screen.height * 0.3)
             .navigationTitle("Explore")
         }
     }
