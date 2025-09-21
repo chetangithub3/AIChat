@@ -51,6 +51,10 @@ enum CharacterOption: String, CaseIterable {
     static var `default`: Self {
         .alien
     }
+
+    var startsWithAVowel: Bool {
+        ["a", "e", "i", "o", "u"].contains(self.rawValue.lowercased().first!)
+    }
 }
 
 enum CharacterAction: String {
@@ -145,6 +149,6 @@ struct AvatarModelDescriptionBuilder {
     }
 
     var characterDescription: String {
-        "A \(charaterOption.rawValue.capitalized) is \(characterAction.rawValue.capitalized) in the \(characterLocation.rawValue.capitalized)"
+        "\(charaterOption.startsWithAVowel ? "An" : "A") \(charaterOption.rawValue.capitalized) is \(characterAction.rawValue.capitalized) in the \(characterLocation.rawValue.capitalized)"
     }
 }

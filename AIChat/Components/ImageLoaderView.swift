@@ -15,7 +15,10 @@ struct ImageLoaderView: View {
     var body: some View {
         Rectangle()
             .overlay(content: {
-                WebImage(url: URL(string: urlString), options: .highPriority, context: .none, isAnimating: .constant(true))
+                WebImage(url: URL(string: urlString),
+                         options: .highPriority,
+                         context: .none,
+                         isAnimating: .constant(true))
                 .resizable()
                 .indicator(.activity)
                 .allowsHitTesting(false)

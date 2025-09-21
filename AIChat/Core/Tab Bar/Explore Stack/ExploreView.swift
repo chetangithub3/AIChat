@@ -15,8 +15,9 @@ struct ExploreView: View {
             List {
                 featuredSection
                 categorySection
+                popularSection
             }
-            .listStyle(PlainListStyle())
+            .listStyle(.grouped)
             .navigationTitle("Explore")
         }
     }
@@ -46,6 +47,19 @@ struct ExploreView: View {
             .removeListRowFormatting()
         } header: {
             Text("Categories")
+        }
+    }
+    private var popularSection: some View {
+        Section {
+            ForEach(featuredAvatars, id: \.self) { avatar in
+                CustomListCellView(
+                    imageURL: avatar.profileImageName,
+                    title: avatar.name,
+                    subtitle: avatar.characterDescription
+                )
+            }
+        } header: {
+            Text("Popular")
         }
     }
 }
