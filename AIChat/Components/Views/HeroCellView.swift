@@ -33,22 +33,33 @@ struct HeroCellView: View {
                     .foregroundStyle(.white)
             }
         }
-        .padding()
-        .background {
-            LinearGradient(
-                colors: [
-                    .black.opacity(0.01),
-                    .black.opacity(0.3),
-                    .black.opacity(0.4)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        }
+        .textSectionBackground()
     }
 }
 
+extension View {
+    func textSectionBackground() -> some View {
+        self
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                LinearGradient(
+                    colors: [
+                        .black.opacity(0.01),
+                        .black.opacity(0.3),
+                        .black.opacity(0.4)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+    }
+}
 #Preview {
-    HeroCellView()
-        .frame(width: 300, height: 200)
+    VStack {
+        HeroCellView()
+            .frame(width: 300, height: 200)
+        HeroCellView()
+            .frame(width: Screen.width, height: 300)
+    }
 }

@@ -42,7 +42,7 @@ struct AvatarModel: Hashable {
     }
 }
 
-enum CharacterOption: String {
+enum CharacterOption: String, CaseIterable {
     case cat
     case dog
     case alien

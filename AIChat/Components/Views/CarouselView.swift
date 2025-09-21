@@ -26,7 +26,6 @@ struct CarouselViewBuilder<Content: View, T: Hashable>: View {
                     }
                 }
             }
-            .padding(8)
             .scrollTargetLayout()
             .scrollTargetBehavior(.paging)
             .scrollIndicators(.hidden)
@@ -66,6 +65,7 @@ struct CarouselView: View {
                     title: item.name,
                     subTitle: item.characterDescription
                 )
+                .padding(.horizontal)
             },
             selection: nil
         )
