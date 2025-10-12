@@ -23,6 +23,7 @@ statement_position:
 
 disabled_rules:
   - unused_optional_binding
+  - switch_case_alignment
 # Custom rules for SwiftUI-specific styling
 custom_rules:
   no_blank_line_before_modifier:

@@ -12,6 +12,7 @@ extension View {
         self
             .font(.headline)
             .tint(.white)
+            .foregroundStyle(.white)
             .frame(maxWidth: .infinity, maxHeight: 55, alignment: .center)
             .background(.accent)
             .clipShape(.buttonBorder)
@@ -31,6 +32,20 @@ extension View {
             )
             .onTapGesture(perform: action)
     }
+
+    func tappableText(scale: CGFloat = 1.1) -> some View {
+        self
+            .background(
+                GeometryReader { geo in
+                    Rectangle()
+                        .foregroundStyle(.clear)
+                        .frame(width: geo.size.width * scale,
+                               height: geo.size.height * scale)
+                        .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                }
+            )
+    }
+
     func removeListRowFormatting() -> some View {
         self
             .listRowInsets(

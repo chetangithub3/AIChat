@@ -55,6 +55,7 @@ extension View {
             }
     }
 }
+
 #Preview {
     VStack {
         HeroCellView()

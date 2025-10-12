@@ -23,7 +23,6 @@ struct CustomListCellView: View {
             }
             .frame(width: 50, height: 50)
             .cornerRadius(8)
-            
             if let title = title, let subtitle = subtitle {
                 VStack(alignment: .leading) {
                     Text(title)

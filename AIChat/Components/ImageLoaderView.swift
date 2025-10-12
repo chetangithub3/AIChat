@@ -14,6 +14,7 @@ struct ImageLoaderView: View {
 
     var body: some View {
         Rectangle()
+            .opacity(0.001)
             .overlay(content: {
                 WebImage(url: URL(string: urlString),
                          options: .highPriority,

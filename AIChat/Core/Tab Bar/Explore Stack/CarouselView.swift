@@ -53,25 +53,6 @@ struct CarouselViewBuilder<Content: View, T: Hashable>: View {
     }
 }
 
-struct CarouselView: View {
-    var items: [AvatarModel]
-    @State var selection: AvatarModel?
-    var body: some View {
-        CarouselViewBuilder(
-            items: items,
-            content: { item in
-                HeroCellView(
-                    imageStringURL: item.profileImageName,
-                    title: item.name,
-                    subTitle: item.characterDescription
-                )
-                .padding(.horizontal)
-            },
-            selection: nil
-        )
-    }
-}
-
 #Preview {
     CarouselViewBuilder(items: AvatarModel.mocks) { item in
         HeroCellView(

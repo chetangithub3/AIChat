@@ -13,8 +13,11 @@ struct ExploreView: View {
     var body: some View {
         NavigationStack {
             List {
-                featuredSection
-                categorySection
+                Group {
+                    featuredSection
+                    categorySection
+                }
+                .listRowSeparator(.hidden)
                 popularSection
             }
             .listStyle(.grouped)
@@ -23,8 +26,20 @@ struct ExploreView: View {
     }
     private var featuredSection: some View {
         Section {
-            CarouselView(items: AvatarModel.mocks)
+            CarouselViewBuilder(
+                items: featuredAvatars,
+                content: { item in
+                    HeroCellView(
+                        imageStringURL: item.profileImageName,
+                        title: item.name,
+                        subTitle: item.characterDescription
+                    )
+                    .padding(.horizontal)
+                },
+                selection: nil
+            )
             .frame(height: Screen.height * 0.3)
+            .anyButton(action: onFeaturedItemPressed)
             .removeListRowFormatting()
         } header: {
             Text("Featured")
@@ -37,6 +52,7 @@ struct ExploreView: View {
                     ForEach(categories, id: \.self) { category in
                         CategoryCellView(image: Constants.randomImageURLString, title: category.rawValue.capitalized)
                         .frame(width: 150, height: 150)
+                        .anyButton(action: onCategoryItemPressed)
                     }
                 }
             }
@@ -57,10 +73,22 @@ struct ExploreView: View {
                     title: avatar.name,
                     subtitle: avatar.characterDescription
                 )
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .anyButton(.highlight, action: onPopularItemPressed)
             }
         } header: {
             Text("Popular")
         }
+    }
+    // todo
+    private func onFeaturedItemPressed() {
+        print("hello f")
+    }
+    private func onCategoryItemPressed() {
+        print("hello c")
+    }
+    private func onPopularItemPressed() {
+        print("hello")
     }
 }
 

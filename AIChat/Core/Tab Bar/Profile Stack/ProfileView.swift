@@ -24,10 +24,9 @@ struct ProfileView: View {
     }
 
     private var settingsButton: some View {
-        Button(action: onSettingsButtonPressed) {
-            Image(systemName: "gear")
-                .font(.title)
-        }
+        Image(systemName: "gear")
+            .font(.title)
+            .anyButton(action: onSettingsButtonPressed)
     }
 
     private func onSettingsButtonPressed() {
