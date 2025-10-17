@@ -13,7 +13,7 @@ struct ChatMessageModel {
     let content: String?
     let createdAt: Date?
     let seenByIds: [String]?
-    
+
     init(
         id: String,
         chatId: String,
@@ -28,6 +28,12 @@ struct ChatMessageModel {
         self.content = content
         self.createdAt = createdAt
         self.seenByIds = seenByIds
+    }
+    func hasBeenSeenBy(userId: String) -> Bool {
+        if let seenByIds = seenByIds {
+            return seenByIds.contains(userId)
+        }
+        return false
     }
     static var mocks: [ChatMessageModel] {
           [
@@ -73,7 +79,6 @@ struct ChatMessageModel {
               )
           ]
       }
-      
       static var mock: ChatMessageModel {
           mocks[0]
       }

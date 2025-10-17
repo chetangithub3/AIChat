@@ -14,11 +14,22 @@ struct ChatsView: View {
         NavigationStack {
             List {
                 ForEach(chats) { chat in
-                    Text(chat.id)
+                    ChatRowCellViewBuilder(
+                        currentUserId: nil, // todo
+                        chat: chat) {
+                            try? await Task.sleep(nanoseconds: 2_000_000_000)
+                            return .mock
+                        } getLastMessge: {
+                            try? await Task.sleep(nanoseconds: 2_000_000_000)
+                            return .mock
+                        }
+                        .anyButton(.highlight, action: chatButtonPressed)
                 }
             }
             .navigationTitle("Chats")
         }
+    }
+    func chatButtonPressed() {
     }
 }
 
