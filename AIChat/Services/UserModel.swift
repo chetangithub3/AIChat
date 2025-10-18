@@ -13,7 +13,6 @@ struct UserModel {
     let dateCreated: Date?
     let didCompleteOnboarding: Bool?
     let profileColorHex: String?
-    
     init(
         userId: String,
         dateCreated: Date? = nil,
@@ -25,7 +24,6 @@ struct UserModel {
         self.didCompleteOnboarding = didCompleteOnboarding
         self.profileColorHex = profileColorHex
     }
-    
     static var mocks: [Self] {
         [
             UserModel(
@@ -50,5 +48,9 @@ struct UserModel {
     }
     static var mock: Self {
         mocks[0]
+    }
+    var colorCalculated: Color {
+        guard let hex = profileColorHex else { return .accent }
+        return Color(hex: hex)
     }
 }

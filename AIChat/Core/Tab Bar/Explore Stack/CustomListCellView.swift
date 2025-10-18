@@ -23,16 +23,19 @@ struct CustomListCellView: View {
             }
             .frame(width: 50, height: 50)
             .cornerRadius(8)
-            if let title = title, let subtitle = subtitle {
-                VStack(alignment: .leading) {
+            VStack(alignment: .leading) {
+                if let title = title {
                     Text(title)
                         .font(.headline)
+                }
+                if let subtitle = subtitle {
                     Text(subtitle)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

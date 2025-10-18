@@ -81,7 +81,7 @@ enum CharacterLocation: String {
 }
 
 extension AvatarModel {
-    static let mocks: [AvatarModel] = [
+    static let mocks: [Self] = [
         AvatarModel(
             avatarId: UUID().uuidString,
             name: "Luna",
@@ -124,7 +124,7 @@ extension AvatarModel {
         )
     ]
 
-    static var mock: AvatarModel {
+    static var mock: Self {
         mocks[0]
     }
 }
