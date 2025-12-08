@@ -5,7 +5,6 @@
 //  Created by Chetan Dhowlaghar on 12/5/25.
 //
 
-
 enum CharacterOption: String, CaseIterable {
     case cat
     case dog
@@ -41,5 +40,29 @@ enum CharacterLocation: String, CaseIterable, Hashable {
 
     static var `default`: Self {
         .desert
+    }
+}
+
+struct AvatarModelDescriptionBuilder {
+    let charaterOption: CharacterOption
+    let characterAction: CharacterAction
+    let characterLocation: CharacterLocation
+
+    init(charaterOption: CharacterOption, characterAction: CharacterAction, characterLocation: CharacterLocation) {
+        self.charaterOption = charaterOption
+        self.characterAction = characterAction
+        self.characterLocation = characterLocation
+    }
+
+    init(avatar: AvatarModel) {
+        self.init(
+            charaterOption: avatar.characterOption ?? .default,
+            characterAction: avatar.characterAction ?? .default,
+            characterLocation: avatar.characterLocation ?? .default
+        )
+    }
+
+    var characterDescription: String {
+        "\(charaterOption.startsWithAVowel ? "An" : "A") \(charaterOption.rawValue.capitalized) is \(characterAction.rawValue.capitalized) in the \(characterLocation.rawValue.capitalized)"
     }
 }

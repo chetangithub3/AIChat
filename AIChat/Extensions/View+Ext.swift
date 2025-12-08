@@ -13,7 +13,7 @@ extension View {
             .font(.headline)
             .tint(.white)
             .foregroundStyle(.white)
-            .frame(maxWidth: .infinity, maxHeight: 55, alignment: .center)
+            .frame(maxWidth: .infinity, minHeight: 55, maxHeight: 55, alignment: .center)
             .background(.accent)
             .clipShape(.buttonBorder)
             .padding()
