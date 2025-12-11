@@ -8,11 +8,30 @@
 import SwiftUI
 
 struct ChatView: View {
+    @State private var chatMessages: [ChatMessageModel] = ChatMessageModel.mocks
+    @State private var avatar: AvatarModel? = .mock
+    @State private var currentUser: UserModel? = .mock
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack(spacing: 0) {
+            ScrollView {
+                LazyVStack(spacing: 24) {
+                    ForEach(chatMessages) { message in
+                        let isCurrentUser = message.authorId == currentUser?.userId
+                        ChatBubbleViewBuilder(message: message, isCurrentUser: isCurrentUser, imageName: isCurrentUser ? nil : avatar?.profileImageName)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            Rectangle()
+                .frame(height: 50)
+        }
+        .navigationTitle(avatar?.name ?? "Chat")
+        .toolbarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    ChatView()
+    NavigationStack {
+        ChatView()
+    }
 }

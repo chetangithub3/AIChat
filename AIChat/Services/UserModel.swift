@@ -27,19 +27,19 @@ struct UserModel {
     static var mocks: [Self] {
         [
             UserModel(
-                userId: UUID().uuidString,
+                userId: "user_001",
                 dateCreated: Date().adding(days: -2, hours: 1),
                 didCompleteOnboarding: true,
                 profileColorHex: "#007AFF"
             ),
             UserModel(
-                userId: UUID().uuidString,
+                userId: "user_001",
                 dateCreated: Date().adding(days: -5, hours: 1),
                 didCompleteOnboarding: false,
                 profileColorHex: "#FF9500"
             ),
             UserModel(
-                userId: UUID().uuidString,
+                userId: "user_001",
                 dateCreated: Date(),
                 didCompleteOnboarding: true,
                 profileColorHex: "#AF52DE"
