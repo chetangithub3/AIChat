@@ -12,8 +12,9 @@ struct ChatView: View {
     @State private var avatar: AvatarModel? = .mock
     @State private var currentUser: UserModel? = .mock
     @State private var textFieldText: String = ""
-    @State private var showChatSettings = false
+    @State private var showChatSettings: AnyAppAlert?
     @State private var scrollPosition: String?
+    @State private var showAlert: AnyAppAlert?
     var body: some View {
         VStack(spacing: 0) {
             scrollViewSection
@@ -25,21 +26,30 @@ struct ChatView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Image(systemName: "ellipsis")
                     .anyButton {
-                        showChatSettings = true
+                      onChatSettingsPressed()
                     }
             }
         }
-        .confirmationDialog("", isPresented: $showChatSettings) {
-            Button("Report user / Chat", role: .destructive) {
-                
+        .showCustomAlert(type: .confirmationDialog, alert: $showChatSettings)
+        .showCustomAlert(alert: $showAlert)
+    }
+    private func onChatSettingsPressed() {
+        showChatSettings = AnyAppAlert(
+            title: "Hello",
+            message: "What would you like to do?",
+            buttons: {
+                AnyView(
+                    Group {
+                        Button("Report user / Chat", role: .destructive) {
+                           //
+                        }
+                        Button("Delete Chat", role: .destructive) {
+                           //
+                        }
+                    }
+                )
             }
-            Button("Delete Chat", role: .destructive) {
-                
-            }
-        } message: {
-           Text("What would you like to do?")
-        }
-
+        )
     }
     private var textFieldSection: some View {
         TextField("Say something...", text: $textFieldText)
@@ -70,17 +80,22 @@ struct ChatView: View {
             .background(Color(uiColor: .secondarySystemBackground))
     }
     private func onSendMessagePressed() {
-        let message = ChatMessageModel(
-            id: UUID().uuidString,
-            chatId: UUID().uuidString,
-            authorId: currentUser?.userId,
-            content: textFieldText,
-            createdAt: .now,
-            seenByIds: nil
-        )
-        chatMessages.append(message)
-        scrollPosition = message.id
-        textFieldText = ""
+        do {
+            try TextValidationHelper.validateMessage(for: textFieldText)
+            let message = ChatMessageModel(
+                id: UUID().uuidString,
+                chatId: UUID().uuidString,
+                authorId: currentUser?.userId,
+                content: textFieldText,
+                createdAt: .now,
+                seenByIds: nil
+            )
+            chatMessages.append(message)
+            scrollPosition = message.id
+            textFieldText = ""
+        } catch let error {
+            showAlert = AnyAppAlert(error: error)
+        }
     }
     private var scrollViewSection: some View {
         ScrollView {
@@ -92,7 +107,7 @@ struct ChatView: View {
                         isCurrentUser: isCurrentUser,
                         imageName: isCurrentUser ? nil : avatar?.profileImageName
                     )
-                        .id(message.id)
+                    .id(message.id)
                 }
             }
             .rotationEffect(.degrees(180))
