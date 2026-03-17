@@ -11,7 +11,7 @@ import SDWebImageSwiftUI
 struct ImageLoaderView: View {
     var urlString: String = Constants.randomImageURLString
     var resizingMode: ContentMode = .fill
-
+    var forceDrawringGroup: Bool = false
     var body: some View {
         Rectangle()
             .opacity(0.001)
@@ -26,6 +26,22 @@ struct ImageLoaderView: View {
                 .aspectRatio(contentMode: resizingMode)
             })
             .clipped()
+            .ifSatisfiesCondition(forceDrawringGroup) { content in
+                content
+                    .drawingGroup()
+            }
+    }
+}
+
+extension View {
+
+    @ViewBuilder
+    func ifSatisfiesCondition(_ condition: Bool, transform: (Self) -> some View) -> some View {
+        if condition {
+            AnyView(transform(self))
+        } else {
+            AnyView(self)
+        }
     }
 }
 

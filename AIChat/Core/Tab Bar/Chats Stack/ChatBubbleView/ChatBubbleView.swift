@@ -14,12 +14,16 @@ struct ChatBubbleView: View {
     var text: String = "This is sample text"
     var imageName: String?
     var offset: CGFloat = 8
+    var onImagePressed: (() -> Void)?
     var body: some View {
         HStack(alignment: .bottom) {
             if showImage {
                 ZStack {
                     if let imageName = imageName {
                         ImageLoaderView(urlString: imageName)
+                            .anyButton {
+                                onImagePressed?()
+                            }
                     } else {
                         Circle()
                             .fill(.secondary)

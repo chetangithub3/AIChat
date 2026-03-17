@@ -15,10 +15,13 @@ struct ChatView: View {
     @State private var showChatSettings: AnyAppAlert?
     @State private var scrollPosition: String?
     @State private var showAlert: AnyAppAlert?
+    @State private var showProfileModal: Bool = false
     var body: some View {
-        VStack(spacing: 0) {
-            scrollViewSection
-            textFieldSection
+        ZStack {
+            VStack(spacing: 0) {
+                scrollViewSection
+                textFieldSection
+            }
         }
         .navigationTitle(avatar?.name ?? "Chat")
         .toolbarTitleDisplayMode(.inline)
@@ -26,12 +29,29 @@ struct ChatView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Image(systemName: "ellipsis")
                     .anyButton {
-                      onChatSettingsPressed()
+                        onChatSettingsPressed()
                     }
             }
         }
         .showCustomAlert(type: .confirmationDialog, alert: $showChatSettings)
         .showCustomAlert(alert: $showAlert)
+        .showModal(showModal: $showProfileModal) {
+            if let avatar {
+                profileModal(avatar)
+                    .zIndex(999)
+                    .animation(.bouncy, value: showProfileModal)
+            }
+        }
+    }
+    private func profileModal(_ avatar: AvatarModel) -> some View {
+        ProfileModalView(
+            imageName: avatar.profileImageName,
+            title: avatar.name,
+            subTitle: avatar.characterOption?.rawValue.capitalized,
+            headline: avatar.characterDescription.capitalized) {
+                showProfileModal = false
+            }
+            .transition(.slide)
     }
     private func onChatSettingsPressed() {
         showChatSettings = AnyAppAlert(
@@ -105,7 +125,8 @@ struct ChatView: View {
                     ChatBubbleViewBuilder(
                         message: message,
                         isCurrentUser: isCurrentUser,
-                        imageName: isCurrentUser ? nil : avatar?.profileImageName
+                        imageName: isCurrentUser ? nil : avatar?.profileImageName,
+                        onImagePressed: onImagePressed
                     )
                     .id(message.id)
                 }
@@ -117,6 +138,9 @@ struct ChatView: View {
         .rotationEffect(.degrees(180))
         .animation(.default, value: chatMessages.count)
         .animation(.default, value: scrollPosition)
+    }
+    private func onImagePressed() {
+        showProfileModal = true
     }
 }
 
