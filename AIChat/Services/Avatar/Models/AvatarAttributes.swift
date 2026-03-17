@@ -18,6 +18,15 @@ enum CharacterOption: String, CaseIterable {
     var startsWithAVowel: Bool {
         ["a", "e", "i", "o", "u"].contains(self.rawValue.lowercased().first!)
     }
+    
+    var plural: String {
+        switch self {
+            case .cat: return "cats"
+            case .dog: return "dogs"
+            case .alien: return "aliens"
+            case .human: return "humans"
+        }
+    }
 }
 
 enum CharacterAction: String, CaseIterable, Hashable {

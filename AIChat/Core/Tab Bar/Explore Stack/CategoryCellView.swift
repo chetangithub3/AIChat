@@ -9,6 +9,7 @@ import SwiftUI
 struct CategoryCellView: View {
     var image: String
     var title: String?
+    var cornerRadius: Double = 16
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             ImageLoaderView(urlString: image)
@@ -20,7 +21,7 @@ struct CategoryCellView: View {
                     .textSectionBackground()
             }
         }
-        .cornerRadius(16)
+        .cornerRadius(cornerRadius)
     }
 }
 
