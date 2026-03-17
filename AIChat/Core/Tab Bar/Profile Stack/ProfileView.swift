@@ -12,14 +12,16 @@ struct ProfileView: View {
     @State var myAvatars: [AvatarModel] = []
     var userProfile: UserModel = .mock
     @State var isLoading = true
+    @State private var path: [NavigationPathOption] = []
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 myInfoSection
                     .padding(20)
                 myAvatarsSection
             }
                 .navigationTitle("Profile")
+                .navigationDestinationForCoreModules(path: $path)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         settingsButton
@@ -61,7 +63,7 @@ struct ProfileView: View {
                 ForEach(myAvatars, id: \.self) { avatar in
                     CustomListCellView(imageURL: avatar.profileImageName, title: avatar.name)
                         .anyButton(.highlight) {
-                                //
+                            onAvatarPressed(avatar: avatar)
                         }
                 }
                 .onDelete { index in
@@ -102,6 +104,9 @@ struct ProfileView: View {
     }
     private func onNewAvatarButtonPressed() {
         showCreateAvatarView.toggle()
+    }
+    private func onAvatarPressed(avatar: AvatarModel) {
+        path.append(.chat(avatarId: avatar.id))
     }
 }
 #Preview {

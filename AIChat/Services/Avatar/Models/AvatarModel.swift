@@ -89,6 +89,6 @@ extension AvatarModel {
     ]
 
     static var mock: Self {
-        mocks[0]
+        mocks.randomElement()!
     }
 }

@@ -7,11 +7,14 @@
 
 import SwiftUI
 
+
 struct ExploreView: View {
     @State private var featuredAvatars = AvatarModel.mocks
     @State private var categories = CharacterOption.allCases
+    @State private var path: [NavigationPathOption] = []
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 Group {
                     featuredSection
@@ -22,6 +25,7 @@ struct ExploreView: View {
             }
             .listStyle(.grouped)
             .navigationTitle("Explore")
+            .navigationDestinationForCoreModules(path: $path)
         }
     }
     private var featuredSection: some View {
@@ -35,6 +39,9 @@ struct ExploreView: View {
                         subTitle: item.characterDescription
                     )
                     .padding(.horizontal)
+                    .anyButton {
+                        onAvatarPressed(avatar: item)
+                    }
                 },
                 selection: nil
             )
@@ -50,9 +57,12 @@ struct ExploreView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 16) {
                     ForEach(categories, id: \.self) { category in
+                        let imageName = featuredAvatars.first(where: {$0.characterOption == category})?.profileImageName
                         CategoryCellView(image: Constants.randomImageURLString, title: category.rawValue.capitalized)
                         .frame(width: 150, height: 150)
-                        .anyButton(action: onCategoryItemPressed)
+                        .anyButton {
+                            onCategoryItemPressed(category, imageName: imageName)
+                        }
                     }
                 }
             }
@@ -74,7 +84,9 @@ struct ExploreView: View {
                     subtitle: avatar.characterDescription
                 )
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .anyButton(.highlight, action: onPopularItemPressed)
+                .anyButton(.highlight) {
+                    onPopularItemPressed(avatar: avatar)
+                }
             }
         } header: {
             Text("Popular")
@@ -84,11 +96,14 @@ struct ExploreView: View {
     private func onFeaturedItemPressed() {
         print("hello f")
     }
-    private func onCategoryItemPressed() {
-        print("hello c")
+    private func onCategoryItemPressed(_ category: CharacterOption, imageName: String?) {
+        path.append(.category(category: category, imageName: Constants.randomImageURLString))
     }
-    private func onPopularItemPressed() {
-        print("hello")
+    private func onPopularItemPressed(avatar: AvatarModel) {
+        path.append(.chat(avatarId: avatar.avatarId))
+    }
+    private func onAvatarPressed(avatar: AvatarModel) {
+        path.append(.chat(avatarId: avatar.avatarId))
     }
 }
 

@@ -1,3 +1,11 @@
+//
+//  NavigationPathOption.swift
+//  AIChat
+//
+//  Created by Chetan Dhowlaghar on 3/17/26.
+//
+
+
 import SwiftUI
 enum NavigationPathOption: Hashable {
     case chat(avatarId: String)

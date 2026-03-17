@@ -9,9 +9,9 @@ import SwiftUI
 
 struct ChatsView: View {
     @State private var chats: [ChatModel] = ChatModel.mocks
-
+    @State private var path: [NavigationPathOption] = []
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 ForEach(chats) { chat in
                     ChatRowCellViewBuilder(
@@ -21,15 +21,19 @@ struct ChatsView: View {
                             return .mock
                         } getLastMessge: {
                             try? await Task.sleep(nanoseconds: 2_000_000_000)
-                            return .mock
+                            return ChatMessageModel.mocks.randomElement()!
                         }
-                        .anyButton(.highlight, action: chatButtonPressed)
+                        .anyButton(.highlight) {
+                            chatButtonPressed(chat: chat)
+                        }
                 }
             }
             .navigationTitle("Chats")
+            .navigationDestinationForCoreModules(path: $path)
         }
     }
-    func chatButtonPressed() {
+    func chatButtonPressed(chat: ChatModel) {
+        path.append(.chat(avatarId: chat.avatarId))
     }
 }
 
