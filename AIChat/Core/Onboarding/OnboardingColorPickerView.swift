@@ -33,7 +33,6 @@ struct OnboardingColorPickerView: View {
                             } else {
                                 selectedColor = color
                             }
-                  
                         }
                     }
                 } header: {
@@ -48,7 +47,6 @@ struct OnboardingColorPickerView: View {
                 footerButton(color: color)
             }
         }
-        
         .transition(AnyTransition.move(edge: .bottom))
     }
 
@@ -71,7 +69,6 @@ struct OnboardingColorPickerView: View {
         let color: Color
         let isSelected: Bool
         let onTap: () -> Void
-        
         var body: some View {
             Circle()
                 .fill(color)

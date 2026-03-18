@@ -11,7 +11,6 @@ struct OnboardingCompleteView: View {
     var selectedColor: Color
     @Environment(AppState.self) private var root
     @State var isUpdatingProfileColor: Bool = false
-    
     var body: some View {
         VStack {
             titleAndDescription
@@ -34,24 +33,23 @@ struct OnboardingCompleteView: View {
         }
     }
     private var finishButton: some View {
-        Button(action: onFinishPressed) {
-            ZStack {
-                if isUpdatingProfileColor {
-                    ProgressView()
-                        .scaleEffect(1.3)
-                } else {
-                    Text("Finish")
-                }
+        ZStack {
+            if isUpdatingProfileColor {
+                ProgressView()
+                    .scaleEffect(1.3)
+            } else {
+                Text("Finish")
             }
-            .mainButtonStyle()
         }
+        .anyButton(.pressable, action: onFinishPressed)
         .disabled(isUpdatingProfileColor)
+        .mainButtonStyle()
     }
     private func onFinishPressed() {
         Task {
             isUpdatingProfileColor = true
                 // update backend
-            try await Task.sleep(nanoseconds: 100_000_000)
+            try await Task.sleep(nanoseconds: 2_000_000_000)
             root.updateViewState(showOnboarding: false)
             isUpdatingProfileColor = false
         }
