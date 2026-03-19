@@ -22,8 +22,14 @@ struct AppView: View {
         )
         .environment(appState)
         .task {
-            print("hello")
             await checkUserStatus()
+        }
+        .onChange(of: appState.showOnboardingView) { _, showOnboardingView in
+            if showOnboardingView {
+                Task {
+                    await checkUserStatus()
+                }
+            }
         }
     }
     private func checkUserStatus() async {

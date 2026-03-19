@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 617271C72ED925AC00EF5FF0 /* SwiftfulUtilities */; };
+		61A6908B2F6C771E00215CAB /* SignInAppleAsync in Frameworks */ = {isa = PBXBuildFile; productRef = 61A6908A2F6C771E00215CAB /* SignInAppleAsync */; };
 		61C40F512F6AAEA800A5E18B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 61C40F502F6AAEA800A5E18B /* FirebaseAuth */; };
 		61E3570A2E46573400CCE7E3 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 61E357092E46573400CCE7E3 /* SDWebImageSwiftUI */; };
 /* End PBXBuildFile section */
@@ -58,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61A6908B2F6C771E00215CAB /* SignInAppleAsync in Frameworks */,
 				61E3570A2E46573400CCE7E3 /* SDWebImageSwiftUI in Frameworks */,
 				61C40F512F6AAEA800A5E18B /* FirebaseAuth in Frameworks */,
 				617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */,
@@ -125,6 +127,7 @@
 				61E357092E46573400CCE7E3 /* SDWebImageSwiftUI */,
 				617271C72ED925AC00EF5FF0 /* SwiftfulUtilities */,
 				61C40F502F6AAEA800A5E18B /* FirebaseAuth */,
+				61A6908A2F6C771E00215CAB /* SignInAppleAsync */,
 			);
 			productName = AIChat;
 			productReference = 61AA5E0B2E41AF0100BE26CE /* AIChat.app */;
@@ -212,6 +215,7 @@
 				61E357082E46573400CCE7E3 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				617271C62ED925AC00EF5FF0 /* XCRemoteSwiftPackageReference "SwiftfulUtilities" */,
 				61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				61A690892F6C771E00215CAB /* XCRemoteSwiftPackageReference "SignInAppleAsync" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 61AA5E0C2E41AF0100BE26CE /* Products */;
@@ -437,6 +441,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = AIChat/AIChat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H8X7BGGD4F;
@@ -472,6 +477,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = AIChat/AIChat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H8X7BGGD4F;
@@ -624,6 +630,14 @@
 				minimumVersion = 1.1.6;
 			};
 		};
+		61A690892F6C771E00215CAB /* XCRemoteSwiftPackageReference "SignInAppleAsync" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftfulThinking/SignInAppleAsync.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
 		61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -647,6 +661,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 617271C62ED925AC00EF5FF0 /* XCRemoteSwiftPackageReference "SwiftfulUtilities" */;
 			productName = SwiftfulUtilities;
+		};
+		61A6908A2F6C771E00215CAB /* SignInAppleAsync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A690892F6C771E00215CAB /* XCRemoteSwiftPackageReference "SignInAppleAsync" */;
+			productName = SignInAppleAsync;
 		};
 		61C40F502F6AAEA800A5E18B /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

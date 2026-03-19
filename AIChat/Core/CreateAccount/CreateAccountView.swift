@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct CreateAccountView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.authService) private var authService
     var title: String = "Create Account"
     var subtitle: String = "Dont lose your data! Connect to an SSO provider to save your account information"
-    @State private var showSignInView: Bool = false
+    var onDidSignIn: ((_ isNewUser: Bool) -> ())?
     var body: some View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
@@ -26,16 +28,22 @@ struct CreateAccountView: View {
                 style: .black, cornerRadius: 30)
                 .frame(height: 50)
                 .anyButton(.pressable) {
+                    signInPressed()
                 }
-        }
-        .sheet(isPresented: $showSignInView) {
-            CreateAccountView()
-                .presentationDetents([.medium])
         }
         .padding()
         .padding(.top, 40)
     }
     private func signInPressed() {
+        Task {
+            do {
+                let result = try await authService.signInApple()
+                onDidSignIn?(result.isNewUser)
+                dismiss()
+            } catch {
+                print("Error signing in")
+            }
+        }
     }
 }
 

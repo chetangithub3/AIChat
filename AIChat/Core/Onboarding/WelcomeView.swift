@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @Environment(AppState.self) private var root
     var imageURLString: String = Constants.randomImageURLString
     @State private var showSignInView: Bool = false
     var body: some View {
@@ -23,9 +24,20 @@ struct WelcomeView: View {
             }
             .toolbarVisibility(.hidden, for: .navigationBar)
             .sheet(isPresented: $showSignInView) {
-                CreateAccountView(title: "Sign In", subtitle: "Connnect to an existing account")
-                    .presentationDetents([.medium])
+                CreateAccountView(
+                    title: "Sign In",
+                    subtitle: "Connnect to an existing account",
+                    onDidSignIn: { isNewUser in
+                        handleDidSignIn(isNewUser: isNewUser)
+                    }
+                )
+                .presentationDetents([.medium])
             }
+        }
+    }
+    private func handleDidSignIn(isNewUser: Bool) {
+        if !isNewUser {
+            root.updateViewState(showOnboarding: false)
         }
     }
     private var signInButtons: some View {
