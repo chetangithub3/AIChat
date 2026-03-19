@@ -12,7 +12,7 @@ struct CreateAccountView: View {
     @Environment(\.authService) private var authService
     var title: String = "Create Account"
     var subtitle: String = "Dont lose your data! Connect to an SSO provider to save your account information"
-    var onDidSignIn: ((_ isNewUser: Bool) -> ())?
+    var onDidSignIn: ((_ isNewUser: Bool) -> Void)?
     var body: some View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {

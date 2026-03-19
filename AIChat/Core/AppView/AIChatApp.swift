@@ -16,7 +16,13 @@ struct AIChatApp: App {
         }
     }
 }
-
+struct EnvironmentBuilder<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+    var body: some View {
+        content()
+            .environment(\.authService, FirebaseAuthService())
+    }
+}
 class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(

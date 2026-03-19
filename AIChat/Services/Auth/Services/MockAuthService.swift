@@ -1,3 +1,12 @@
+//
+//  MockAuthService.swift
+//  AIChat
+//
+//  Created by Chetan Dhowlaghar on 3/20/26.
+//
+
+import SwiftUI
+
 struct MockAuthService: AuthService {
     let currentUser: UserAuthInfo?
 
