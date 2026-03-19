@@ -1,0 +1,30 @@
+# Xcode
+DerivedData/
+build/
+
+# User settings
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Swift Package Manager
+.build/
+Packages/
+
+# CocoaPods
+Pods/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+
+# Secrets
+GoogleService-Info.plist
+*.env
