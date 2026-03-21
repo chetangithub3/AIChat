@@ -12,7 +12,9 @@ struct AIChatApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            AppView()
+            EnvironmentBuilder {
+                AppView()
+            }
         }
     }
 }
@@ -20,7 +22,7 @@ struct EnvironmentBuilder<Content: View>: View {
     @ViewBuilder var content: () -> Content
     var body: some View {
         content()
-            .environment(\.authService, FirebaseAuthService())
+            .environment(AuthManager(service: FirebaseAuthService()))
     }
 }
 class AppDelegate: NSObject, UIApplicationDelegate {
