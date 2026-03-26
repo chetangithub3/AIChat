@@ -9,8 +9,9 @@ import SwiftUI
 
 struct OnboardingCompleteView: View {
     var selectedColor: Color
+    @Environment(UserManager.self) private var userManager
     @Environment(AppState.self) private var root
-    @State var isUpdatingProfileColor: Bool = false
+    @State var isUpdatingProfileSetup: Bool = false
     var body: some View {
         VStack {
             titleAndDescription
@@ -34,7 +35,7 @@ struct OnboardingCompleteView: View {
     }
     private var finishButton: some View {
         ZStack {
-            if isUpdatingProfileColor {
+            if isUpdatingProfileSetup {
                 ProgressView()
                     .scaleEffect(1.3)
             } else {
@@ -42,21 +43,22 @@ struct OnboardingCompleteView: View {
             }
         }
         .anyButton(.pressable, action: onFinishPressed)
-        .disabled(isUpdatingProfileColor)
+        .disabled(isUpdatingProfileSetup)
         .mainButtonStyle()
     }
     private func onFinishPressed() {
         Task {
-            isUpdatingProfileColor = true
-                // update backend
-            try await Task.sleep(nanoseconds: 2_000_000_000)
+            isUpdatingProfileSetup = true
+            let hexColor = try selectedColor.toHex()
+            try await userManager.markOnboardingCompleteForCurrentUser(profileColorHex: hexColor)
             root.updateViewState(showOnboarding: false)
-            isUpdatingProfileColor = false
+            isUpdatingProfileSetup = false
         }
     }
 }
 
 #Preview {
     OnboardingCompleteView(selectedColor: .orange)
+        .environment(UserManager(service: MockUserService()))
         .environment(AppState())
 }

@@ -7,10 +7,12 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(AuthManager.self) private var authManager
+    @Environment(UserManager.self) private var userManager
     @State var showSettingsView: Bool = false
     @State var showCreateAvatarView: Bool = false
     @State var myAvatars: [AvatarModel] = []
-    var userProfile: UserModel = .mock
+    @State var userProfile: UserModel?
     @State var isLoading = true
     @State private var path: [NavigationPathOption] = []
     var body: some View {
@@ -39,6 +41,7 @@ struct ProfileView: View {
         }
     }
     private func loadData() async {
+        self.userProfile = userManager.currentUser
         isLoading = true
         try? await Task.sleep(nanoseconds: 2_000_000_000)
         isLoading = false
@@ -85,7 +88,7 @@ struct ProfileView: View {
         Section {
             Circle()
                 .frame(width: 100, height: 100)
-                .foregroundStyle(userProfile.colorCalculated)
+                .foregroundStyle(userProfile?.colorCalculated ?? .accent)
                 .frame(maxWidth: .infinity)
         }
         .removeListRowFormatting()
@@ -110,6 +113,7 @@ struct ProfileView: View {
     }
 }
 #Preview {
-    ProfileView()
+    ProfileView(userProfile: .mock)
+        .environment(UserManager(service: MockUserService(user: .mock)))
         .environment(AppState())
 }

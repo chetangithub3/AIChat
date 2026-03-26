@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 617271C72ED925AC00EF5FF0 /* SwiftfulUtilities */; };
 		61A6908B2F6C771E00215CAB /* SignInAppleAsync in Frameworks */ = {isa = PBXBuildFile; productRef = 61A6908A2F6C771E00215CAB /* SignInAppleAsync */; };
+		61A691CC2F6EEE0200215CAB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 61A691CB2F6EEE0200215CAB /* FirebaseFirestore */; };
+		61A691CF2F6FDDB200215CAB /* SwiftfulFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 61A691CE2F6FDDB200215CAB /* SwiftfulFirestore */; };
 		61C40F512F6AAEA800A5E18B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 61C40F502F6AAEA800A5E18B /* FirebaseAuth */; };
 		61E3570A2E46573400CCE7E3 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 61E357092E46573400CCE7E3 /* SDWebImageSwiftUI */; };
 /* End PBXBuildFile section */
@@ -61,7 +63,9 @@
 			files = (
 				61A6908B2F6C771E00215CAB /* SignInAppleAsync in Frameworks */,
 				61E3570A2E46573400CCE7E3 /* SDWebImageSwiftUI in Frameworks */,
+				61A691CF2F6FDDB200215CAB /* SwiftfulFirestore in Frameworks */,
 				61C40F512F6AAEA800A5E18B /* FirebaseAuth in Frameworks */,
+				61A691CC2F6EEE0200215CAB /* FirebaseFirestore in Frameworks */,
 				617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -83,12 +87,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		61A691CA2F6EEE0200215CAB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		61AA5E022E41AF0100BE26CE = {
 			isa = PBXGroup;
 			children = (
 				61AA5E0D2E41AF0100BE26CE /* AIChat */,
 				61AA5E1B2E41AF0300BE26CE /* AIChatTests */,
 				61AA5E252E41AF0300BE26CE /* AIChatUITests */,
+				61A691CA2F6EEE0200215CAB /* Frameworks */,
 				61AA5E0C2E41AF0100BE26CE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -128,6 +140,8 @@
 				617271C72ED925AC00EF5FF0 /* SwiftfulUtilities */,
 				61C40F502F6AAEA800A5E18B /* FirebaseAuth */,
 				61A6908A2F6C771E00215CAB /* SignInAppleAsync */,
+				61A691CB2F6EEE0200215CAB /* FirebaseFirestore */,
+				61A691CE2F6FDDB200215CAB /* SwiftfulFirestore */,
 			);
 			productName = AIChat;
 			productReference = 61AA5E0B2E41AF0100BE26CE /* AIChat.app */;
@@ -216,6 +230,7 @@
 				617271C62ED925AC00EF5FF0 /* XCRemoteSwiftPackageReference "SwiftfulUtilities" */,
 				61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				61A690892F6C771E00215CAB /* XCRemoteSwiftPackageReference "SignInAppleAsync" */,
+				61A691CD2F6FDDB200215CAB /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 61AA5E0C2E41AF0100BE26CE /* Products */;
@@ -638,6 +653,14 @@
 				minimumVersion = 1.0.2;
 			};
 		};
+		61A691CD2F6FDDB200215CAB /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftfulThinking/SwiftfulFirestore";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.6;
+			};
+		};
 		61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -666,6 +689,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 61A690892F6C771E00215CAB /* XCRemoteSwiftPackageReference "SignInAppleAsync" */;
 			productName = SignInAppleAsync;
+		};
+		61A691CB2F6EEE0200215CAB /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		61A691CE2F6FDDB200215CAB /* SwiftfulFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61A691CD2F6FDDB200215CAB /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */;
+			productName = SwiftfulFirestore;
 		};
 		61C40F502F6AAEA800A5E18B /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
