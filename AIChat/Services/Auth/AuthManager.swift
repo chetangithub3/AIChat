@@ -26,7 +26,6 @@ class AuthManager {
                 self.listener = listener
             }) {
                 self.auth = value
-                print("Auth listener success: \(value?.uid ?? "")")
             }
         }
     }

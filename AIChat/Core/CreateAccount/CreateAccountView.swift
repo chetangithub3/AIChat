@@ -43,7 +43,6 @@ struct CreateAccountView: View {
                 onDidSignIn?(result.isNewUser)
                 dismiss()
             } catch {
-                print("Error signing in")
             }
         }
     }

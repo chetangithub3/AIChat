@@ -93,7 +93,6 @@ struct ExploreView: View {
     }
     // todo
     private func onFeaturedItemPressed() {
-        print("hello f")
     }
     private func onCategoryItemPressed(_ category: CharacterOption, imageName: String?) {
         path.append(.category(category: category, imageName: Constants.randomImageURLString))
