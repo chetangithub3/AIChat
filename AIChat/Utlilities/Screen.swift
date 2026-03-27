@@ -10,6 +10,17 @@ import UIKit
 
 @MainActor
 enum Screen {
-    static var width: CGFloat { UIScreen.main.bounds.width }
-    static var height: CGFloat { UIScreen.main.bounds.height }
+    static var width: CGFloat {
+        UIApplication.shared
+            .connectedScenes
+            .compactMap {($0 as? UIWindowScene)?.screen}
+            .first?.bounds.size.width ?? .zero
+    }
+
+    static var height: CGFloat {
+        UIApplication.shared
+            .connectedScenes
+            .compactMap {($0 as? UIWindowScene)?.screen}
+            .first?.bounds.size.height ?? .zero
+    }
 }
