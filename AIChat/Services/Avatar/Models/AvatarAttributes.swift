@@ -5,7 +5,7 @@
 //  Created by Chetan Dhowlaghar on 12/5/25.
 //
 
-enum CharacterOption: String, CaseIterable {
+enum CharacterOption: String, Codable, CaseIterable {
     case cat
     case dog
     case alien
@@ -29,7 +29,7 @@ enum CharacterOption: String, CaseIterable {
     }
 }
 
-enum CharacterAction: String, CaseIterable, Hashable {
+enum CharacterAction: String, Codable, CaseIterable, Hashable {
     case sitting
     case crying
     case walking
@@ -40,7 +40,7 @@ enum CharacterAction: String, CaseIterable, Hashable {
     }
 }
 
-enum CharacterLocation: String, CaseIterable, Hashable {
+enum CharacterLocation: String, Codable, CaseIterable, Hashable {
     case city
     case desert
     case sea
