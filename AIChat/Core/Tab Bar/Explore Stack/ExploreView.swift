@@ -8,23 +8,49 @@
 import SwiftUI
 
 struct ExploreView: View {
-    @State private var featuredAvatars = AvatarModel.mocks
+    @State private var featuredAvatars: [AvatarModel] = []
+    @State private var popularAvatars: [AvatarModel] = []
     @State private var categories = CharacterOption.allCases
     @State private var path: [NavigationPathOption] = []
+    @Environment(AvatarManager.self) private var avatarManager
 
     var body: some View {
         NavigationStack(path: $path) {
             List {
-                Group {
-                    featuredSection
-                    categorySection
+                if featuredAvatars.isEmpty && popularAvatars.isEmpty {
+                    ProgressView()
+                        .ignoresSafeArea()
+                } else {
+                    Group {
+                        featuredSection
+                        categorySection
+                    }
+                    .listRowSeparator(.hidden)
+                    popularSection
                 }
-                .listRowSeparator(.hidden)
-                popularSection
             }
             .listStyle(.grouped)
             .navigationTitle("Explore")
             .navigationDestinationForCoreModules(path: $path)
+            .task {
+                await loadFeaturedAvatars()
+            }
+            .task {
+                await loadPopularAvatars()
+            }
+        }
+    }
+    private func loadFeaturedAvatars() async {
+        guard featuredAvatars.isEmpty else { return }
+        do {
+            self.featuredAvatars = try await avatarManager.getFeaturedAvatars()
+        } catch {
+        }
+    }
+    private func loadPopularAvatars() async {
+        do {
+            popularAvatars = try await avatarManager.getPopularAvatars()
+        } catch {
         }
     }
     private var featuredSection: some View {
@@ -57,7 +83,7 @@ struct ExploreView: View {
                 HStack(spacing: 16) {
                     ForEach(categories, id: \.self) { category in
                         let imageName = featuredAvatars.first(where: {$0.characterOption == category})?.profileImageName
-                        CategoryCellView(image: Constants.randomImageURLString, title: category.rawValue.capitalized)
+                        CategoryCellView(image: imageName ?? "", title: category.rawValue.capitalized)
                         .frame(width: 150, height: 150)
                         .anyButton {
                             onCategoryItemPressed(category, imageName: imageName)
@@ -76,7 +102,7 @@ struct ExploreView: View {
     }
     private var popularSection: some View {
         Section {
-            ForEach(featuredAvatars, id: \.self) { avatar in
+            ForEach(popularAvatars, id: \.self) { avatar in
                 CustomListCellView(
                     imageURL: avatar.profileImageName,
                     title: avatar.name,
@@ -107,4 +133,5 @@ struct ExploreView: View {
 
 #Preview {
     ExploreView()
+        .environment(AvatarManager(service: MockAvatarService()))
 }

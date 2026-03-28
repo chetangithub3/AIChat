@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import IdentifiableByString
 
-struct AvatarModel: Codable, Hashable, Identifiable {
+struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
     var id: String {
         avatarId
     }
@@ -42,11 +43,9 @@ struct AvatarModel: Codable, Hashable, Identifiable {
     var characterDescription: String {
         AvatarModelDescriptionBuilder(avatar: self).characterDescription
     }
-    
     mutating func updateImage(imageName: String) {
         profileImageName = imageName
     }
-    
     enum CodingKeys: String, CodingKey {
         case avatarId = "avatar_id"
         case name
