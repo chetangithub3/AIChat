@@ -25,24 +25,29 @@ struct CategoryListView: View {
             .frame(height: 350)
             .removeListRowFormatting()
 
-            if avatars.isEmpty && isLoading {
+            if isLoading {
                 ProgressView()
                     .padding(40)
                     .frame(maxWidth: .infinity)
                     .removeListRowFormatting()
                     .listRowSeparator(.hidden)
-            }
-            ForEach(avatars) { avatar in
-                CustomListCellView(
-                    imageURL: avatar.profileImageName,
-                    title: avatar.name,
-                    subtitle: avatar.characterDescription
-                )
-                .anyButton {
-                    onAvatarPresed(avatar: avatar)
+            } else if avatars.isEmpty {
+                Text("No avatars found")
+                    .listRowSeparator(.hidden)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(avatars) { avatar in
+                    CustomListCellView(
+                        imageURL: avatar.profileImageName,
+                        title: avatar.name,
+                        subtitle: avatar.characterDescription
+                    )
+                    .anyButton {
+                        onAvatarPresed(avatar: avatar)
+                    }
                 }
+                .navigationDestinationForCoreModules(path: $path)
             }
-            .navigationDestinationForCoreModules(path: $path)
         }
         .listStyle(.plain)
         .ignoresSafeArea()
@@ -64,7 +69,15 @@ struct CategoryListView: View {
     }
 }
 
-#Preview {
+#Preview("Has avatars") {
     CategoryListView(path: .constant([]))
         .environment(AvatarManager(service: MockAvatarService()))
+}
+#Preview("No avatars") {
+    CategoryListView(path: .constant([]))
+        .environment(AvatarManager(service: MockAvatarService(avatars: [])))
+}
+#Preview("Error") {
+    CategoryListView(path: .constant([]))
+        .environment(AvatarManager(service: MockAvatarService(delay: 4, doesThrow: true)))
 }
