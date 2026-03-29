@@ -6,7 +6,10 @@
 //
 
 import SwiftUI
-struct MockAvatarService: AvatarService {
+struct MockAvatarService: RemoteAvatarService {
+    func getAvatar(id: String) async throws -> AvatarModel {
+        AvatarModel.mock
+    }
     func getAvatarsForAuthor(userId: String) async throws -> [AvatarModel] {
         AvatarModel.mocks.shuffled()
     }

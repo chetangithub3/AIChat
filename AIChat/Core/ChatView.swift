@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct ChatView: View {
+    @Environment(AvatarManager.self) private var avatarManager
     @State private var chatMessages: [ChatMessageModel] = ChatMessageModel.mocks
-    @State private var avatar: AvatarModel? = .mock
+    @State private var avatar: AvatarModel?
     @State private var currentUser: UserModel? = .mock
     @State private var textFieldText: String = ""
     @State private var showChatSettings: AnyAppAlert?
@@ -42,6 +43,19 @@ struct ChatView: View {
                     .zIndex(999)
                     .animation(.bouncy, value: showProfileModal)
             }
+        }
+        .task {
+            await loadAvatar()
+        }
+    }
+
+    private func loadAvatar() async {
+        do {
+            let avatar = try await avatarManager.getAvatar(id: avatarId)
+            self.avatar = avatar
+            try? avatarManager.addRecentAvatar(avatar: avatar)
+        } catch {
+            print("error loading av")
         }
     }
     private func profileModal(_ avatar: AvatarModel) -> some View {
@@ -148,5 +162,6 @@ struct ChatView: View {
 #Preview {
     NavigationStack {
         ChatView()
+            .environment(AvatarManager(service: MockAvatarService()))
     }
 }

@@ -8,7 +8,7 @@
 import FirebaseFirestore
 import SwiftfulFirestore
 
-struct FirebaseAvatarService: AvatarService {
+struct FirebaseAvatarService: RemoteAvatarService {
     func getPopularAvatars() async throws -> [AvatarModel] {
         try await collection
             .limit(to: 100)
@@ -43,5 +43,8 @@ struct FirebaseAvatarService: AvatarService {
         try await collection
             .whereField(AvatarModel.CodingKeys.authorId.rawValue, isEqualTo: userId)
             .getAllDocuments()
+    }
+    func getAvatar(id: String) async throws -> AvatarModel {
+        try await collection.getDocument(id: id)
     }
 }

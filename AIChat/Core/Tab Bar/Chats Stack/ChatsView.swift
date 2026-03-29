@@ -11,6 +11,7 @@ struct ChatsView: View {
     @State private var chats: [ChatModel] = ChatModel.mocks
     @State private var path: [NavigationPathOption] = []
     @State var recentAvatars: [AvatarModel] = AvatarModel.mocks
+    @Environment(AvatarManager.self) private var avatarManager
     var body: some View {
         NavigationStack(path: $path) {
             List {
@@ -26,6 +27,9 @@ struct ChatsView: View {
             }
             .navigationTitle("Chats")
             .navigationDestinationForCoreModules(path: $path)
+            .onAppear {
+                loadRecentAvatars()
+            }
         }
     }
     private var recentsSection: some View {
@@ -52,6 +56,13 @@ struct ChatsView: View {
             }
         } header: {
             Text("Recents")
+        }
+    }
+    private func loadRecentAvatars() {
+        do {
+            recentAvatars = try avatarManager.getRecentAvatars()
+        } catch {
+            print("error loading recent avatars: \(error)")
         }
     }
     private func avatarPressed(avatar: AvatarModel) {
@@ -89,4 +100,5 @@ struct ChatsView: View {
 
 #Preview {
     ChatsView()
+        .environment(AvatarManager(service: MockAvatarService()))
 }
