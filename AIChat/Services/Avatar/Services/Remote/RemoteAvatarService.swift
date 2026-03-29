@@ -13,4 +13,5 @@ protocol RemoteAvatarService: Sendable {
     func getAvatarsForCategory(category: CharacterOption) async throws -> [AvatarModel]
     func getAvatarsForAuthor(userId: String) async throws -> [AvatarModel]
     func getAvatar(id: String) async throws -> AvatarModel
+    func incrementAvatarClickCount(avatarId: String) async throws
 }

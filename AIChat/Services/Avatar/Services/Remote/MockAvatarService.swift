@@ -27,4 +27,6 @@ struct MockAvatarService: RemoteAvatarService {
     }
     func createAavatar(avatar: AvatarModel, image: UIImage) async throws {
     }
+    func incrementAvatarClickCount(avatarId: String) async throws {
+    }
 }

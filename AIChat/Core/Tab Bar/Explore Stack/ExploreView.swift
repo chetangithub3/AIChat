@@ -65,13 +65,12 @@ struct ExploreView: View {
                     )
                     .padding(.horizontal)
                     .anyButton {
-                        onAvatarPressed(avatar: item)
+                        onFeaturedAvatarPressed(avatar: item)
                     }
                 },
                 selection: nil
             )
             .frame(height: Screen.height * 0.3)
-            .anyButton(action: onFeaturedItemPressed)
             .removeListRowFormatting()
         } header: {
             Text("Featured")
@@ -82,13 +81,15 @@ struct ExploreView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 16) {
                     ForEach(categories, id: \.self) { category in
-                        let imageName = featuredAvatars.first(where: {$0.characterOption == category})?.profileImageName
-                        CategoryCellView(image: imageName ?? "", title: category.rawValue.capitalized)
-                        .frame(width: 150, height: 150)
-                        .anyButton {
-                            onCategoryItemPressed(category, imageName: imageName)
+                        if let imageName = featuredAvatars.first(where: {$0.characterOption == category})?.profileImageName {
+                            CategoryCellView(image: imageName, title: category.rawValue.capitalized)
+                            .frame(width: 150, height: 150)
+                            .anyButton {
+                                onCategoryItemPressed(category, imageName: imageName)
+                            }
+
                         }
-                    }
+                                            }
                 }
             }
             .scrollTargetLayout()
@@ -117,16 +118,13 @@ struct ExploreView: View {
             Text("Popular")
         }
     }
-    // todo
-    private func onFeaturedItemPressed() {
-    }
-    private func onCategoryItemPressed(_ category: CharacterOption, imageName: String?) {
-        path.append(.category(category: category, imageName: Constants.randomImageURLString))
+    private func onCategoryItemPressed(_ category: CharacterOption, imageName: String) {
+        path.append(.category(category: category, imageName: imageName))
     }
     private func onPopularItemPressed(avatar: AvatarModel) {
         path.append(.chat(avatarId: avatar.avatarId))
     }
-    private func onAvatarPressed(avatar: AvatarModel) {
+    private func onFeaturedAvatarPressed(avatar: AvatarModel) {
         path.append(.chat(avatarId: avatar.avatarId))
     }
 }

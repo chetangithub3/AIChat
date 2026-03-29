@@ -20,6 +20,7 @@ struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
     private(set) var profileImageName: String?
     let authorId: String?
     let dateCreated: Date?
+    let clickCount: Int?
 
     init(
         avatarId: String,
@@ -29,7 +30,8 @@ struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
         characterLocation: CharacterLocation? = nil,
         profileImageName: String? = nil,
         authorId: String? = nil,
-        dateCreated: Date? = nil
+        dateCreated: Date? = nil,
+        clickCount: Int? = nil
     ) {
         self.avatarId = avatarId
         self.name = name
@@ -39,6 +41,7 @@ struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
         self.profileImageName = profileImageName
         self.authorId = authorId
         self.dateCreated = dateCreated
+        self.clickCount = clickCount
     }
     var characterDescription: String {
         AvatarModelDescriptionBuilder(avatar: self).characterDescription
@@ -55,6 +58,7 @@ struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
         case profileImageName = "profile_image_name"
         case authorId = "author_id"
         case dateCreated = "date_created"
+        case clickCount = "click_count"
     }
 }
 
@@ -68,7 +72,8 @@ extension AvatarModel {
             characterLocation: .city,
             profileImageName: Constants.randomImageURLString,
             authorId: "user123",
-            dateCreated: Date()
+            dateCreated: Date(),
+            clickCount: 10
         ),
         AvatarModel(
             avatarId: UUID().uuidString,
@@ -78,7 +83,8 @@ extension AvatarModel {
             characterLocation: .desert,
             profileImageName: Constants.randomImageURLString,
             authorId: "user456",
-            dateCreated: Date().addingTimeInterval(-86400)
+            dateCreated: Date().addingTimeInterval(-86400),
+            clickCount: 5
         ),
         AvatarModel(
             avatarId: UUID().uuidString,
@@ -88,7 +94,8 @@ extension AvatarModel {
             characterLocation: .sea,
             profileImageName: Constants.randomImageURLString,
             authorId: "user789",
-            dateCreated: Date().addingTimeInterval(-3600)
+            dateCreated: Date().addingTimeInterval(-3600),
+            clickCount: 100
         ),
         AvatarModel(
             avatarId: UUID().uuidString,
@@ -98,7 +105,8 @@ extension AvatarModel {
             characterLocation: .building,
             profileImageName: Constants.randomImageURLString,
             authorId: "user111",
-            dateCreated: Date().addingTimeInterval(-604800)
+            dateCreated: Date().addingTimeInterval(-604800),
+            clickCount: 25
         )
     ]
 

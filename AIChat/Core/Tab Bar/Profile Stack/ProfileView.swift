@@ -34,9 +34,13 @@ struct ProfileView: View {
         .sheet(isPresented: $showSettingsView, content: {
             SettingsView()
         })
-        .fullScreenCover(isPresented: $showCreateAvatarView) {
+        .fullScreenCover(isPresented: $showCreateAvatarView, onDismiss: {
+            Task {
+                await loadData()
+            }
+        }, content: {
             CreateAvatarview()
-        }
+        })
         .task {
             await loadData()
         }

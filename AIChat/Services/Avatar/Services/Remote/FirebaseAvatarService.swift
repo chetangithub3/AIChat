@@ -10,17 +10,16 @@ import SwiftfulFirestore
 
 struct FirebaseAvatarService: RemoteAvatarService {
     func getPopularAvatars() async throws -> [AvatarModel] {
-        try await collection
+        let list: [AvatarModel] = try await collection
+            .order(by: AvatarModel.CodingKeys.clickCount.rawValue, descending: true)
             .limit(to: 100)
             .getAllDocuments()
-            .shuffled()
-            .first(upto: 5) ?? []
+        return list.first(upto: 5) ?? []
     }
     func getFeaturedAvatars() async throws -> [AvatarModel] {
         try await collection
             .limit(to: 10)
             .getAllDocuments()
-            .shuffled()
             .first(upto: 5) ?? []
     }
     var collection: CollectionReference {
@@ -35,16 +34,22 @@ struct FirebaseAvatarService: RemoteAvatarService {
     }
     func getAvatarsForCategory(category: CharacterOption) async throws -> [AvatarModel] {
         try await collection
-            .whereField(AvatarModel.CodingKeys.avatarId.rawValue, isEqualTo: category.rawValue)
+            .whereField(AvatarModel.CodingKeys.characterOption .rawValue, isEqualTo: category.rawValue)
             .limit(to: 10)
             .getAllDocuments()
     }
     func getAvatarsForAuthor(userId: String) async throws -> [AvatarModel] {
         try await collection
             .whereField(AvatarModel.CodingKeys.authorId.rawValue, isEqualTo: userId)
+            .order(by: AvatarModel.CodingKeys.dateCreated.rawValue, descending: true)
             .getAllDocuments()
     }
     func getAvatar(id: String) async throws -> AvatarModel {
         try await collection.getDocument(id: id)
+    }
+    func incrementAvatarClickCount(avatarId: String) async throws {
+        try await collection.document(avatarId).updateData([
+            AvatarModel.CodingKeys.clickCount.rawValue: FieldValue.increment(Int64(1))
+        ])
     }
 }

@@ -159,9 +159,11 @@ struct CreateAvatarview: View {
                     characterLocation: characterLocation,
                     profileImageName: nil,
                     authorId: uid,
-                    dateCreated: Date()
+                    dateCreated: Date(),
+                    clickCount: 0
                 )
                 try await avatarManager.createAavatar(avatar: avatar, image: generatedImage)
+                dismiss()
             } catch {
                 showAlert = AnyAppAlert(error: error)
             }
