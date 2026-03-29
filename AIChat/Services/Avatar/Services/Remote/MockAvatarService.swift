@@ -7,6 +7,10 @@
 
 import SwiftUI
 struct MockAvatarService: RemoteAvatarService {
+    func removeAuthorIdFromAvatar(avatarId: String) async throws {
+    }
+    func removeAuthoIdFromAllAvatars(userId: String) async throws {
+    }
     let avatars: [AvatarModel]
     let delay: Int
     let doesThrow: Bool

@@ -13,7 +13,7 @@ class UserManager {
 
     private(set) var currentUser: UserModel?
     private let remote: RemoteUserService
-    private let local: LocalUserPersistance
+    private let local: LocalUserPersistence
 
     init(services: UserServices) {
         self.remote = services.remote
