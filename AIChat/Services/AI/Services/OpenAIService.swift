@@ -9,6 +9,7 @@ import SwiftUI
 import OpenAI
 
 struct OpenAIService: AIService {
+    
     var openAI: OpenAI {
         OpenAI(apiToken: Keys.openAIAPIKey)
     }
@@ -31,7 +32,70 @@ struct OpenAIService: AIService {
         }
         return image
     }
+    func generateText(chats: [AIChatModel]) async throws -> AIChatModel {
+        let messages = chats.compactMap({$0.toOpenAIModel()})
+        let query = ChatQuery(
+            messages: messages,
+            model: .gpt4_1_nano,
+            modalities: [.text],
+            maxCompletionTokens: 50
+        )
+        let result  = try await openAI.chats(query: query)
+        guard let chat = result.choices.first?.message, let chatMessage = chat.content?.description else {
+            throw OpenAIError.textGenerationFailed
+        }
+        guard let chatModel = AIChatModel(chat: chat) else {
+            throw OpenAIError.textGenerationFailed
+        }
+        dump(chatModel)
+        return chatModel
+    }
     enum OpenAIError: LocalizedError {
         case imageGenerationFailed
+        case textGenerationFailed
+    }
+}
+
+struct AIChatModel {
+    let role: AIChatRole
+    let content: String
+
+    init?(chat: ChatResult.Choice.Message) {
+        guard let content = chat.content else { return nil }
+        role = AIChatRole(rawValue: chat.role)
+        self.content = content
+    }
+
+    init(role: AIChatRole, content: String) {
+        self.role = role
+        self.content = content
+    }
+    
+    func toOpenAIModel() -> ChatQuery.ChatCompletionMessageParam? {
+        ChatQuery.ChatCompletionMessageParam(
+            role: role.openAIRole,
+            content: content
+        )
+    }
+}
+
+enum AIChatRole {
+    case system, user, assistant, tool
+    init (rawValue: String) {
+        switch rawValue {
+            case "system": self = .system
+            case "user": self = .user
+            case "assistant": self = .assistant
+            case "tool": self = .tool
+            default: self = .system
+        }
+    }
+    var openAIRole: ChatQuery.ChatCompletionMessageParam.Role {
+        switch self {
+            case .system: return .system
+            case .user: return .user
+            case .assistant: return .assistant
+            case .tool: return .tool
+        }
     }
 }

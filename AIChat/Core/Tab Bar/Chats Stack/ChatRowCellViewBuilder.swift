@@ -27,7 +27,7 @@ struct ChatRowCellViewBuilder: View {
         ChatRowCellView(
             imageName: avatar?.profileImageName,
             headline: isLoading ? "xxxx xxxx" : avatar?.name,
-            subheadline: isLoading ? "xxxx xxxx xxxx" : lastMessage?.content,
+            subheadline: isLoading ? "xxxx xxxx xxxx" : lastMessage?.content?.content,
             hasNewChat: isLoading ? false : hasNewChat
         )
         .redacted(reason: isLoading ? .placeholder : [])

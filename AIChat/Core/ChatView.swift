@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ChatView: View {
     @Environment(AvatarManager.self) private var avatarManager
+    @Environment(AIManager.self) private var aiManager
     @State private var chatMessages: [ChatMessageModel] = ChatMessageModel.mocks
     @State private var avatar: AvatarModel?
     @State private var currentUser: UserModel? = .mock
@@ -115,21 +116,35 @@ struct ChatView: View {
             .background(Color(uiColor: .secondarySystemBackground))
     }
     private func onSendMessagePressed() {
-        do {
-            try TextValidationHelper.validateMessage(for: textFieldText)
-            let message = ChatMessageModel(
-                id: UUID().uuidString,
-                chatId: UUID().uuidString,
-                authorId: currentUser?.userId,
-                content: textFieldText,
-                createdAt: .now,
-                seenByIds: nil
-            )
-            chatMessages.append(message)
-            scrollPosition = message.id
-            textFieldText = ""
-        } catch let error {
-            showAlert = AnyAppAlert(error: error)
+        Task {
+            do {
+                let textFieldMessage = textFieldText
+                try TextValidationHelper.validateMessage(for: textFieldText)
+                textFieldText = ""
+                let message = ChatMessageModel(
+                    id: UUID().uuidString,
+                    chatId: UUID().uuidString,
+                    authorId: currentUser?.userId,
+                    content: AIChatModel(role: .user, content: textFieldMessage),
+                    createdAt: .now,
+                    seenByIds: nil
+                )
+                chatMessages.append(message)
+                scrollPosition = message.id
+                let chats = chatMessages.compactMap({ $0.content })
+                let reply = try await aiManager.generateText(chats: chats)
+                let replyMessage = ChatMessageModel(
+                    id: UUID().uuidString,
+                    chatId: UUID().uuidString,
+                    authorId: avatarId,
+                    content: reply,
+                    createdAt: .now,
+                    seenByIds: nil
+                )
+                chatMessages.append(replyMessage)
+            } catch let error {
+                showAlert = AnyAppAlert(error: error)
+            }
         }
     }
     private var scrollViewSection: some View {
@@ -149,6 +164,7 @@ struct ChatView: View {
             .rotationEffect(.degrees(180))
             .scrollPosition(id: $scrollPosition, anchor: .center)
             .frame(maxWidth: .infinity)
+            .padding(.horizontal)
         }
         .rotationEffect(.degrees(180))
         .animation(.default, value: chatMessages.count)
@@ -162,6 +178,6 @@ struct ChatView: View {
 #Preview {
     NavigationStack {
         ChatView()
-            .environment(AvatarManager(service: MockAvatarService()))
+            .previewEnvironment()
     }
 }

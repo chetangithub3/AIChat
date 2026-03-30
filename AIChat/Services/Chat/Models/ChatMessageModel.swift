@@ -10,7 +10,7 @@ struct ChatMessageModel: Identifiable {
     let id: String
     let chatId: String
     let authorId: String?
-    let content: String?
+    let content: AIChatModel?
     let createdAt: Date?
     let seenByIds: [String]?
 
@@ -18,7 +18,7 @@ struct ChatMessageModel: Identifiable {
         id: String,
         chatId: String,
         authorId: String? = nil,
-        content: String? = nil,
+        content: AIChatModel? = nil,
         createdAt: Date? = nil,
         seenByIds: [String]? = nil
     ) {
@@ -41,7 +41,7 @@ struct ChatMessageModel: Identifiable {
                   id: UUID().uuidString,
                   chatId: "chat_001",
                   authorId: "user_001",
-                  content: "Hey! How’s your project going?",
+                  content: AIChatModel(role: .system, content: "Hey! How’s your project going?") ,
                   createdAt: Date().adding(days: -2, hours: -3),
                   seenByIds: ["user_002"]
               ),
@@ -49,7 +49,7 @@ struct ChatMessageModel: Identifiable {
                   id: UUID().uuidString,
                   chatId: "chat_001",
                   authorId: "user_002",
-                  content: "Pretty good! Just fixing some bugs right now 😅",
+                  content: AIChatModel(role: .user, content: "Pretty good! Just fixing some bugs right now 😅"),
                   createdAt: Date().adding(days: -2, hours: -2, minutes: -40),
                   seenByIds: ["user_001"]
               ),
@@ -57,7 +57,7 @@ struct ChatMessageModel: Identifiable {
                   id: UUID().uuidString,
                   chatId: "chat_001",
                   authorId: "user_001",
-                  content: "Nice! Send me a build when ready 🚀",
+                  content: AIChatModel(role: .system, content: "Nice! Send me a build when ready 🚀"),
                   createdAt: Date().adding(days: -2, hours: -2, minutes: -20),
                   seenByIds: ["user_002"]
               ),
@@ -65,7 +65,7 @@ struct ChatMessageModel: Identifiable {
                   id: UUID().uuidString,
                   chatId: "chat_002",
                   authorId: "user_003",
-                  content: "Morning! Did you check the new designs?",
+                  content: AIChatModel(role: .user, content: "Morning! Did you check the new designs?"),
                   createdAt: Date().adding(hours: -5),
                   seenByIds: ["user_004", "user_005"]
               ),
@@ -73,7 +73,7 @@ struct ChatMessageModel: Identifiable {
                   id: UUID().uuidString,
                   chatId: "chat_002",
                   authorId: "user_004",
-                  content: "Yes! They look fantastic 👏",
+                  content: AIChatModel(role: .system, content: "Yes! They look fantastic 👏"),
                   createdAt: Date().adding(hours: -4, minutes: -30),
                   seenByIds: ["user_003"]
               )
