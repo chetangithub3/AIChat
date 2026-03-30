@@ -54,10 +54,14 @@ struct OpenAIService: AIService {
     }
 }
 
-struct AIChatModel {
+struct AIChatModel: Codable {
     let role: AIChatRole
     let content: String
 
+    enum CodingKeys: String, CodingKey {
+        case role
+        case content
+    }
     init?(chat: ChatResult.Choice.Message) {
         guard let content = chat.content else { return nil }
         role = AIChatRole(rawValue: chat.role)
@@ -76,7 +80,7 @@ struct AIChatModel {
     }
 }
 
-enum AIChatRole {
+enum AIChatRole: String, Codable {
     case system, user, assistant, tool
     init (rawValue: String) {
         switch rawValue {

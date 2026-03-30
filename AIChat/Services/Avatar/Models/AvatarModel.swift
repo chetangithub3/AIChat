@@ -65,7 +65,7 @@ struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
 extension AvatarModel {
     static func newAvatar(name: String, option: CharacterOption, action: CharacterAction, location: CharacterLocation, authorId: String) -> Self {
         AvatarModel(
-            avatarId: UUID().uuidString,
+            avatarId: "avatar_ava_1",
             name: name,
             characterOption: option,
             characterAction: action,
@@ -78,7 +78,7 @@ extension AvatarModel {
     }
     static let mocks: [Self] = [
         AvatarModel(
-            avatarId: UUID().uuidString,
+            avatarId: "avatar_ava_2",
             name: "Luna",
             characterOption: .cat,
             characterAction: .sleeping,
@@ -89,7 +89,7 @@ extension AvatarModel {
             clickCount: 10
         ),
         AvatarModel(
-            avatarId: UUID().uuidString,
+            avatarId: "avatar_ava_3",
             name: "Bolt",
             characterOption: .dog,
             characterAction: .walking,
@@ -100,7 +100,7 @@ extension AvatarModel {
             clickCount: 5
         ),
         AvatarModel(
-            avatarId: UUID().uuidString,
+            avatarId: "avatar_ava_4",
             name: "Zorg",
             characterOption: .alien,
             characterAction: .crying,
