@@ -9,7 +9,6 @@ import SwiftUI
 import OpenAI
 
 struct OpenAIService: AIService {
-    
     var openAI: OpenAI {
         OpenAI(apiToken: Keys.openAIAPIKey)
     }
@@ -41,13 +40,12 @@ struct OpenAIService: AIService {
             maxCompletionTokens: 50
         )
         let result  = try await openAI.chats(query: query)
-        guard let chat = result.choices.first?.message, let chatMessage = chat.content?.description else {
+        guard let chat = result.choices.first?.message, let _ = chat.content?.description else {
             throw OpenAIError.textGenerationFailed
         }
         guard let chatModel = AIChatModel(chat: chat) else {
             throw OpenAIError.textGenerationFailed
         }
-        dump(chatModel)
         return chatModel
     }
     enum OpenAIError: LocalizedError {
@@ -70,7 +68,6 @@ struct AIChatModel {
         self.role = role
         self.content = content
     }
-    
     func toOpenAIModel() -> ChatQuery.ChatCompletionMessageParam? {
         ChatQuery.ChatCompletionMessageParam(
             role: role.openAIRole,

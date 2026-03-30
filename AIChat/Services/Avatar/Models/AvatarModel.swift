@@ -63,6 +63,19 @@ struct AvatarModel: Codable, Hashable, Identifiable, StringIdentifiable {
 }
 
 extension AvatarModel {
+    static func newAvatar(name: String, option: CharacterOption, action: CharacterAction, location: CharacterLocation, authorId: String) -> Self {
+        AvatarModel(
+            avatarId: UUID().uuidString,
+            name: name,
+            characterOption: option,
+            characterAction: action,
+            characterLocation: location,
+            profileImageName: nil,
+            authorId: authorId,
+            dateCreated: Date(),
+            clickCount: 0
+        )
+    }
     static let mocks: [Self] = [
         AvatarModel(
             avatarId: UUID().uuidString,

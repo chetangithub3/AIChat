@@ -151,16 +151,12 @@ struct CreateAvatarview: View {
             do {
                 try TextValidationHelper.validateMessage(for: avatarName)
                 let uid = try authManager.getAuthId()
-                let avatar = AvatarModel(
-                    avatarId: UUID().uuidString,
+                let avatar = AvatarModel.newAvatar(
                     name: avatarName,
-                    characterOption: characterOption,
-                    characterAction: characterAction,
-                    characterLocation: characterLocation,
-                    profileImageName: nil,
-                    authorId: uid,
-                    dateCreated: Date(),
-                    clickCount: 0
+                    option: characterOption,
+                    action: characterAction,
+                    location: characterLocation,
+                    authorId: uid
                 )
                 try await avatarManager.createAavatar(avatar: avatar, image: generatedImage)
                 dismiss()

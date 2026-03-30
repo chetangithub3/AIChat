@@ -35,13 +35,33 @@ struct ChatMessageModel: Identifiable {
         }
         return false
     }
+    static func newUserMessage(chatId: String, userId: String, message: AIChatModel) -> Self {
+        ChatMessageModel(
+            id: UUID().uuidString,
+            chatId: chatId,
+            authorId: userId,
+            content: message,
+            createdAt: .now,
+            seenByIds: [userId]
+        )
+    }
+    static func newAIMessage(chatId: String, avatarId: String, message: AIChatModel) -> Self {
+        ChatMessageModel(
+            id: UUID().uuidString,
+            chatId: chatId,
+            authorId: avatarId,
+            content: message,
+            createdAt: .now,
+            seenByIds: []
+        )
+    }
     static var mocks: [ChatMessageModel] {
           [
               ChatMessageModel(
                   id: UUID().uuidString,
                   chatId: "chat_001",
                   authorId: "user_001",
-                  content: AIChatModel(role: .system, content: "Hey! How’s your project going?") ,
+                  content: AIChatModel(role: .system, content: "Hey! How’s your project going?"),
                   createdAt: Date().adding(days: -2, hours: -3),
                   seenByIds: ["user_002"]
               ),

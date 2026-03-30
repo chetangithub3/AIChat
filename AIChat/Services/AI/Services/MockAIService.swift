@@ -11,7 +11,6 @@ struct MockAIService: AIService {
         guard let chat =  chats.first else { throw URLError.init(.unknown)}
         return chat
     }
-    
     func generateImage(input: String) async throws -> UIImage {
         try await Task.sleep(for: .seconds(3))
         return UIImage(systemName: "star.fill")!
