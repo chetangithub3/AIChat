@@ -8,7 +8,7 @@
 import Foundation
 import IdentifiableByString
 
-struct ChatModel: Identifiable, Codable, Sendable, StringIdentifiable {
+struct ChatModel: Identifiable, Codable, Sendable, Hashable, StringIdentifiable {
     let id: String
     let userId: String
     let avatarId: String
@@ -38,36 +38,36 @@ struct ChatModel: Identifiable, Codable, Sendable, StringIdentifiable {
         [
             ChatModel(
                 id: UUID().uuidString,
-                userId: "user_001",
-                avatarId: "avatar_sage",
+                userId: UserAuthInfo.mock.uid,
+                avatarId: AvatarModel.mocks.randomElement()!.avatarId,
                 dateCreated: Date().adding(days: -3),
                 dateUpdated: Date().adding(days: -2)
             ),
             ChatModel(
                 id: UUID().uuidString,
-                userId: "user_002",
-                avatarId: "avatar_neo",
+                userId: UserAuthInfo.mock.uid,
+                avatarId: AvatarModel.mocks.randomElement()!.avatarId,
                 dateCreated: Date().adding(days: -2),
                 dateUpdated: Date().adding(days: -1)
             ),
             ChatModel(
                 id: UUID().uuidString,
-                userId: "user_003",
-                avatarId: "avatar_iris",
+                userId: UserAuthInfo.mock.uid,
+                avatarId: AvatarModel.mocks.randomElement()!.avatarId,
                 dateCreated: Date().adding(days: -1),
                 dateUpdated: Date().adding(hours: -10)
             ),
             ChatModel(
                 id: UUID().uuidString,
-                userId: "user_004",
-                avatarId: "avatar_rio",
+                userId: UserAuthInfo.mock.uid,
+                avatarId: AvatarModel.mocks.randomElement()!.avatarId,
                 dateCreated: Date().adding(hours: -6),
                 dateUpdated: Date().adding(hours: -2)
             ),
             ChatModel(
                 id: UUID().uuidString,
-                userId: "user_005",
-                avatarId: "avatar_luna",
+                userId: UserAuthInfo.mock.uid,
+                avatarId: AvatarModel.mocks.randomElement()!.avatarId,
                 dateCreated: Date().adding(hours: -1),
                 dateUpdated: Date()
             )

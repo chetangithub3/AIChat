@@ -155,10 +155,10 @@ struct ExploreView: View {
         path.append(.category(category: category, imageName: imageName))
     }
     private func onPopularItemPressed(avatar: AvatarModel) {
-        path.append(.chat(avatarId: avatar.avatarId))
+        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
     private func onFeaturedAvatarPressed(avatar: AvatarModel) {
-        path.append(.chat(avatarId: avatar.avatarId))
+        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
 }
 

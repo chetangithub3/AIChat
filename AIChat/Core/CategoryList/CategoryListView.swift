@@ -56,7 +56,7 @@ struct CategoryListView: View {
         }
     }
     func onAvatarPresed(avatar: AvatarModel) {
-        path.append(.chat(avatarId: avatar.avatarId))
+        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
     func loadAvatars() async {
         isLoading = true

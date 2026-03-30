@@ -127,7 +127,7 @@ struct ProfileView: View {
         showCreateAvatarView.toggle()
     }
     private func onAvatarPressed(avatar: AvatarModel) {
-        path.append(.chat(avatarId: avatar.id))
+        path.append(.chat(avatarId: avatar.id, chat: nil))
     }
 }
 #Preview {

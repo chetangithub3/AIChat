@@ -21,9 +21,9 @@ struct ChatView: View {
     @State private var scrollPosition: String?
     @State private var showAlert: AnyAppAlert?
     @State private var showProfileModal: Bool = false
-    @State private var chat: ChatModel?
     @State private var isGeneratingResponse = false
     var avatarId: String = AvatarModel.mock.avatarId
+    @State var chat: ChatModel?
     var body: some View {
         VStack(spacing: 0) {
             scrollViewSection
@@ -68,7 +68,8 @@ struct ChatView: View {
         do {
             let chatId = try getChatID()
             for try await value in chatManager.streamChatMessages(chatId: chatId) {
-                chatMessages = value.sorted(by: { $0.dateCreatedCalculated < $1.dateCreatedCalculated })
+                chatMessages = value
+                    .sortedByKeyPath(keyPath: \.dateCreatedCalculated)
                 scrollPosition = chatMessages.last?.id
             }
         } catch {

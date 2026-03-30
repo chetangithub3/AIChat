@@ -12,20 +12,53 @@ protocol ChatService: Sendable {
     func addChatMessage(chatId: String, message: ChatMessageModel) async throws
     func getChat(userId: String, avatarId: String) async throws -> ChatModel?
     func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], Error>
+    func getAllChats(userId: String) async throws -> [ChatModel]
+    func getLastChatMessage(chatId: String) async throws -> ChatMessageModel?
 }
 
 struct MockChatService: ChatService {
+    
+    let chats: [ChatModel]
+    let delay: Int
+    let doesThrow: Bool
+    init(chats: [ChatModel] = ChatModel.mocks, delay: Int = 2, doesThrow: Bool = false) {
+        self.chats = chats
+        self.delay = delay
+        self.doesThrow = doesThrow
+    }
+    func throwError() throws {
+        if doesThrow {
+            throw URLError(.unknown)
+        }
+    }
+    func getLastChatMessage(chatId: String) async throws -> ChatMessageModel? {
+        try await Task.sleep(for: .seconds(delay))
+        try throwError()
+        return ChatMessageModel.mocks.randomElement()
+    }
+    
+    func getAllChats(userId: String) async throws -> [ChatModel] {
+        try await Task.sleep(for: .seconds(delay))
+        try throwError()
+        return chats
+    }
+    
     func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
         AsyncThrowingStream { continuation in
         }
     }
-    
     func createNewChat(chat: ChatModel) async throws {
+        try await Task.sleep(for: .seconds(delay))
+        try throwError()
     }
     func addChatMessage(chatId: String, message: ChatMessageModel) async throws {
+        try await Task.sleep(for: .seconds(delay))
+        try throwError()
     }
     func getChat(userId: String, avatarId: String) async throws -> ChatModel? {
-        ChatModel.mock
+        try await Task.sleep(for: .seconds(delay))
+        try throwError()
+        return chats.first(where: { $0.userId == userId && $0.avatarId == avatarId })
     }
 }
 
@@ -56,6 +89,18 @@ struct FirebaseChatService: ChatService {
         try await collection
             .getDocument(id: ChatModel.chatId(userId: userId, avatarId: avatarId))
     }
+    func getAllChats(userId: String) async throws -> [ChatModel] {
+        try await collection
+            .whereField(ChatModel.CodingKeys.userId.rawValue, isEqualTo: userId)
+            .getAllDocuments()
+    }
+    func getLastChatMessage(chatId: String) async throws -> ChatMessageModel? {
+        let messages: [ChatMessageModel] = try await messagesCollection(chatId: chatId)
+            .order(by: ChatMessageModel.CodingKeys.createdAt.rawValue, descending: true)
+            .limit(to: 1)
+            .getAllDocuments()
+        return messages.first
+    }
 }
 
 @MainActor
@@ -76,5 +121,11 @@ class ChatManager {
     }
     func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], Error> {
         service.streamChatMessages(chatId: chatId)
+    }
+    func getAllChats(userId: String) async throws -> [ChatModel] {
+        try await service.getAllChats(userId: userId)
+    }
+    func getLastMessage(chatId: String) async throws -> ChatMessageModel? {
+        try await service.getLastChatMessage(chatId: chatId)
     }
 }

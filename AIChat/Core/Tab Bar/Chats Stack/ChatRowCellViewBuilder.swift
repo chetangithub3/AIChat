@@ -10,8 +10,8 @@ import SwiftUI
 struct ChatRowCellViewBuilder: View {
     var currentUserId: String?
     var chat: ChatModel = .mock
-    var getAvatar: () async -> AvatarModel
-    var getLastMessge: () async -> ChatMessageModel
+    var getAvatar: () async -> AvatarModel?
+    var getLastMessge: () async -> ChatMessageModel?
     @State private var avatar: AvatarModel?
     @State private var lastMessage: ChatMessageModel?
     @State private var didLoadAvatar: Bool = false
