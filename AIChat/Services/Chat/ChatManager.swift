@@ -10,12 +10,22 @@ import Foundation
 protocol ChatService: Sendable {
     func createNewChat(chat: ChatModel) async throws
     func addChatMessage(chatId: String, message: ChatMessageModel) async throws
+    func getChat(userId: String, avatarId: String) async throws -> ChatModel?
+    func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], Error>
 }
 
 struct MockChatService: ChatService {
+    func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
+        AsyncThrowingStream { continuation in
+        }
+    }
+    
     func createNewChat(chat: ChatModel) async throws {
     }
     func addChatMessage(chatId: String, message: ChatMessageModel) async throws {
+    }
+    func getChat(userId: String, avatarId: String) async throws -> ChatModel? {
+        ChatModel.mock
     }
 }
 
@@ -39,6 +49,13 @@ struct FirebaseChatService: ChatService {
             ChatModel.CodingKeys.dateUpdated.rawValue: Date.now
         ])
     }
+    func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], Error> {
+        messagesCollection(chatId: chatId).streamAllDocuments()
+    }
+    func getChat(userId: String, avatarId: String) async throws -> ChatModel? {
+        try await collection
+            .getDocument(id: ChatModel.chatId(userId: userId, avatarId: avatarId))
+    }
 }
 
 @MainActor
@@ -53,5 +70,11 @@ class ChatManager {
     }
     func addChatMessage(chatId: String, message: ChatMessageModel) async throws {
         try await service.addChatMessage(chatId: chatId, message: message)
+    }
+    func getChat(userId: String, avatarId: String) async throws -> ChatModel? {
+        try await service.getChat(userId: userId, avatarId: avatarId)
+    }
+    func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], Error> {
+        service.streamChatMessages(chatId: chatId)
     }
 }

@@ -37,6 +37,9 @@ struct ChatMessageModel: Identifiable, Codable {
         case createdAt = "created_at"
         case seenByIds = "seen_by_ids"
     }
+    var dateCreatedCalculated: Date {
+        createdAt ?? .distantPast
+    }
     func hasBeenSeenBy(userId: String) -> Bool {
         if let seenByIds = seenByIds {
             return seenByIds.contains(userId)
@@ -69,7 +72,7 @@ struct ChatMessageModel: Identifiable, Codable {
                   id: UUID().uuidString,
                   chatId: "chat_001",
                   authorId: UserAuthInfo.mock.uid,
-                  content: AIChatModel(role: .system, content: "Hey! How’s your project going?"),
+                  content: AIChatModel(role: .assistant, content: "Hey! How’s your project going?"),
                   createdAt: Date().adding(days: -2, hours: -3),
                   seenByIds: ["user_002"]
               ),
@@ -85,7 +88,7 @@ struct ChatMessageModel: Identifiable, Codable {
                   id: UUID().uuidString,
                   chatId: "chat_001",
                   authorId: UserAuthInfo.mock.uid,
-                  content: AIChatModel(role: .system, content: "Nice! Send me a build when ready 🚀"),
+                  content: AIChatModel(role: .assistant, content: "Nice! Send me a build when ready 🚀"),
                   createdAt: Date().adding(days: -2, hours: -2, minutes: -20),
                   seenByIds: ["user_002"]
               ),
@@ -101,7 +104,7 @@ struct ChatMessageModel: Identifiable, Codable {
                   id: UUID().uuidString,
                   chatId: "chat_002",
                   authorId: UserAuthInfo.mock.uid,
-                  content: AIChatModel(role: .system, content: "Yes! They look fantastic 👏"),
+                  content: AIChatModel(role: .assistant, content: "Yes! They look fantastic 👏"),
                   createdAt: Date().adding(hours: -4, minutes: -30),
                   seenByIds: ["user_003"]
               )

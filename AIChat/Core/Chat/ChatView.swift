@@ -13,7 +13,7 @@ struct ChatView: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(AvatarManager.self) private var avatarManager
     @Environment(AIManager.self) private var aiManager
-    @State private var chatMessages: [ChatMessageModel] = ChatMessageModel.mocks
+    @State private var chatMessages: [ChatMessageModel] = []
     @State private var avatar: AvatarModel?
     @State private var currentUser: UserModel? = .mock
     @State private var textFieldText: String = ""
@@ -25,11 +25,9 @@ struct ChatView: View {
     @State private var isGeneratingResponse = false
     var avatarId: String = AvatarModel.mock.avatarId
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                scrollViewSection
-                textFieldSection
-            }
+        VStack(spacing: 0) {
+            scrollViewSection
+            textFieldSection
         }
         .navigationTitle(avatar?.name ?? "")
         .toolbarTitleDisplayMode(.inline)
@@ -58,8 +56,38 @@ struct ChatView: View {
         .task {
             await loadAvatar()
         }
+        .task {
+            await loadChat()
+            await listenForChatMessages()
+        }
         .onAppear {
             loadCurrentUser()
+        }
+    }
+    private func listenForChatMessages() async {
+        do {
+            let chatId = try getChatID()
+            for try await value in chatManager.streamChatMessages(chatId: chatId) {
+                chatMessages = value.sorted(by: { $0.dateCreatedCalculated < $1.dateCreatedCalculated })
+                scrollPosition = chatMessages.last?.id
+            }
+        } catch {
+            print("fefjwegjwejfe")
+        }
+    }
+    func getChatID() throws -> String {
+        guard let chat else {
+            throw ChatViewError.noChat
+        }
+        return chat.id
+    }
+    private func loadChat() async {
+        do {
+            let uid = try authManager.getAuthId()
+            chat = try await chatManager.getChat(userId: uid, avatarId: avatarId)
+            print("success loading chat")
+        } catch {
+            print("error")
         }
     }
     private func loadCurrentUser() {
@@ -153,16 +181,20 @@ struct ChatView: View {
                 let message = ChatMessageModel.newUserMessage(chatId: chat.id, userId: userId, message: AIChatModel(role: .user, content: textFieldMessage))
                 // upload chat
                 try await chatManager.addChatMessage(chatId: chat.id, message: message)
-                chatMessages.append(message)
 
                 // clear text field and scroll down
                 textFieldText = ""
-                scrollPosition = message.id
                 // generate AI reply
-                let chats = chatMessages.compactMap({ $0.content })
+                var chats = chatMessages.compactMap({ $0.content })
+                if let avatarDescription = avatar?.characterDescription {
+                    let systemMessage = AIChatModel(
+                        role: .system,
+                        content: "You are a \(avatarDescription)"
+                    )
+                    chats.insert(systemMessage, at: 0)
+                }
                 let reply = try await aiManager.generateText(chats: chats)
                 let replyMessage = ChatMessageModel.newAIMessage(chatId: chat.id, avatarId: avatarId, message: reply)
-                chatMessages.append(replyMessage)
 
                 // upload AI chat
                 try await chatManager.addChatMessage(chatId: chat.id, message: replyMessage)
@@ -178,6 +210,11 @@ struct ChatView: View {
     private func  createNewChat(userId: String) async throws -> ChatModel {
         let newChat = ChatModel.new(userId: userId, avatarId: avatarId)
         try await chatManager.createNewChat(chat: newChat)
+        defer {
+            Task {
+                await listenForChatMessages()
+            }
+        }
         return newChat
     }
     private var scrollViewSection: some View {
