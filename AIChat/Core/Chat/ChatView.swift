@@ -276,7 +276,6 @@ struct ChatView: View {
             .previewEnvironment()
     }
 }
-
 #Preview("Slow AI") {
     NavigationStack {
         ChatView()
