@@ -68,4 +68,6 @@ class MockChatService: @preconcurrency ChatService {
     }
     func deleteAllChatsForUser(userId: String) async throws {
     }
+    func markChatMessageAsSeen(chatId: String, messageId: String, userId: String) async throws {
+    }
 }

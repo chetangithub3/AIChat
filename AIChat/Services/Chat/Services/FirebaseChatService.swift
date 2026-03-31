@@ -5,7 +5,6 @@
 //  Created by Chetan Dhowlaghar on 3/31/26.
 //
 
-
 import SwiftfulFirestore
 import FirebaseFirestore
 
@@ -27,6 +26,11 @@ struct FirebaseChatService: ChatService {
 
         try await collection.document(chatId).updateData([
             ChatModel.CodingKeys.dateUpdated.rawValue: Date.now
+        ])
+    }
+    func markChatMessageAsSeen(chatId: String, messageId: String, userId: String) async throws {
+        try await messagesCollection(chatId: chatId).document(messageId).updateData([
+            ChatMessageModel.CodingKeys.seenByIds.rawValue: FieldValue.arrayUnion([userId])
         ])
     }
     func streamChatMessages(chatId: String) -> AsyncThrowingStream<[ChatMessageModel], Error> {

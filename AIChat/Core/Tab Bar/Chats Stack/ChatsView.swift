@@ -31,7 +31,6 @@ struct ChatsView: View {
                 } else {
                     ProgressView()
                 }
-               
             }
             .navigationTitle("Chats")
             .navigationDestinationForCoreModules(path: $path)
