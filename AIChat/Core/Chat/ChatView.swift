@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ChatView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(UserManager.self) private var userManager
     @Environment(ChatManager.self) private var chatManager
     @Environment(AuthManager.self) private var authManager
@@ -66,7 +67,7 @@ struct ChatView: View {
     }
     private func listenForChatMessages() async {
         do {
-            let chatId = try getChatID()
+            let chatId = try getChatId()
             for try await value in chatManager.streamChatMessages(chatId: chatId) {
                 chatMessages = value
                     .sortedByKeyPath(keyPath: \.dateCreatedCalculated)
@@ -76,7 +77,7 @@ struct ChatView: View {
             print("fefjwegjwejfe")
         }
     }
-    func getChatID() throws -> String {
+    func getChatId() throws -> String {
         guard let chat else {
             throw ChatViewError.noChat
         }
@@ -121,15 +122,38 @@ struct ChatView: View {
                 AnyView(
                     Group {
                         Button("Report user / Chat", role: .destructive) {
-                           //
+                           reportUserPressed()
                         }
                         Button("Delete Chat", role: .destructive) {
-                           //
+                           onDeleteChatPressed()
                         }
                     }
                 )
             }
         )
+    }
+    private func reportUserPressed() {
+        Task {
+            do {
+                let chatId = try getChatId()
+                let userId = try authManager.getAuthId()
+                try await chatManager.reportChat(chatId: chatId, userId: userId)
+                showAlert = AnyAppAlert(title: "Reported successfully", message: "The chat will be reviewd.")
+            } catch {
+                showAlert = AnyAppAlert(title: "Something went wrong", message: "Please check your network and try again")
+            }
+        }
+    }
+    private func onDeleteChatPressed() {
+        Task {
+            do {
+                let chatId = try getChatId()
+                try await chatManager.deleteChat(chatId: chatId)
+                dismiss()
+            } catch {
+                showAlert = AnyAppAlert(title: "Something went wrong", message: "Please check your network and try again")
+            }
+        }
     }
     private var textFieldSection: some View {
         TextField("Say something...", text: $textFieldText)
@@ -220,7 +244,7 @@ struct ChatView: View {
     }
     private var scrollViewSection: some View {
         ScrollView {
-            LazyVStack(spacing: 24) {
+            VStack(spacing: 24) {
                 ForEach(chatMessages) { message in
                     let isCurrentUser = message.authorId == authManager.auth?.uid
                     ChatBubbleViewBuilder(

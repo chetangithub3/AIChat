@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(ChatManager.self) private var chatManager
     @Environment(UserManager.self) private var userManager
     @Environment(AuthManager.self) private var authManager
     @Environment(AvatarManager.self) private var avatarManager
@@ -155,7 +156,8 @@ struct SettingsView: View {
                 async let deleteAuth: () = authManager.deleteAccount()
                 async let deleteUser: () = userManager.deleteCurrentUser()
                 async let deleteAvatars: () = avatarManager.removeAuthoIdFromAllAvatars(userId: uid)
-                let (_, _, _) = await (try deleteAuth, try deleteUser, try deleteAvatars)
+                async let deleteChats: () = chatManager.deleteAllChatsForUser(userId: uid)
+                let (_, _, _, _) = await (try deleteAuth, try deleteUser, try deleteAvatars, try deleteChats)
                 await dismissScreen()
             } catch {
                 showAlert = AnyAppAlert(error: error)
@@ -181,17 +183,17 @@ fileprivate extension View {
     SettingsView()
         .environment(AuthManager(service: MockAuthService(user: UserAuthInfo.mock(isAnonymous: false))))
         .environment(UserManager(services: MockUserServices(user: .mock)))
-        .environment(AppState())
+        .previewEnvironment()
 }
 #Preview("Anonymous") {
     SettingsView()
-        .environment(AppState())
         .environment(AuthManager(service: MockAuthService(user: UserAuthInfo.mock(isAnonymous: true))))
         .environment(UserManager(services: MockUserServices(user: .mock)))
+        .previewEnvironment()
 }
 #Preview("No auth") {
     SettingsView()
-        .environment(AppState())
         .environment(UserManager(services: MockUserServices(user: nil)))
         .environment(AuthManager(service: MockAuthService(user: nil)))
+        .previewEnvironment()
 }
