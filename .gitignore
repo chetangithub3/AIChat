@@ -26,6 +26,7 @@ fastlane/Preview.html
 fastlane/screenshots/
 
 # Secrets
-GoogleService-Info.plist
+GoogleService-Info-Dev.plist
+GoogleService-Info-Prod.plist
 Keys.swift
 *.env
