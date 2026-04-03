@@ -61,6 +61,19 @@ struct UserModel: Codable {
         case didCompleteOnboarding = "did_complete_onboarding"
         case profileColorHex = "profile_color_hex"
     }
+    var eventParameters: [String: Any] {
+        let dict: [String: Any?] = [
+            "user_\(CodingKeys.userId.rawValue)": userId,
+            "user_\(CodingKeys.email.rawValue)": email,
+            "user_\(CodingKeys.isAnonymous.rawValue)": isAnonymous?.description,
+            "user_\(CodingKeys.creationDate.rawValue)": creationDate?.description,
+            "user_\(CodingKeys.creationVersion.rawValue)": creationVersion,
+            "user_\(CodingKeys.lastSignInDate.rawValue)": lastSignInDate?.description,
+            "user_\(CodingKeys.didCompleteOnboarding.rawValue)": didCompleteOnboarding?.description,
+            "user_\(CodingKeys.profileColorHex.rawValue)": profileColorHex
+        ]
+        return dict.compactMapValues({ $0 })
+    }
     static var mocks: [Self] {
         [
             UserModel(

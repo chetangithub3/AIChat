@@ -15,7 +15,14 @@ struct ExploreView: View {
     @Environment(AvatarManager.self) private var avatarManager
     @State private var isLoadingFeatured: Bool = false
     @State private var isLoadingPopular: Bool = false
-
+    @State private var showDevSettings: Bool = false
+    var isDevOrMock: Bool {
+        #if DEV || MOCK
+        return true
+        #else
+        return false
+        #endif
+    }
     var body: some View {
         NavigationStack(path: $path) {
             List {
@@ -38,6 +45,16 @@ struct ExploreView: View {
             }
             .listStyle(.grouped)
             .navigationTitle("Explore")
+            .toolbar(content: {
+                ToolbarItem(placement: .topBarLeading) {
+                    if isDevOrMock {
+                        devSettingsButton
+                    }
+                }
+            })
+            .sheet(isPresented: $showDevSettings) {
+                Text("Dev settings")
+            }
             .navigationDestinationForCoreModules(path: $path)
             .task {
                 await loadFeaturedAvatars()
@@ -68,6 +85,12 @@ struct ExploreView: View {
                 }
             }
         }
+    }
+    private var devSettingsButton: some View {
+        Text("DEV")
+            .anyButton {
+                showDevSettings = true
+            }
     }
     private func loadFeaturedAvatars() async {
         guard featuredAvatars.isEmpty else { return }

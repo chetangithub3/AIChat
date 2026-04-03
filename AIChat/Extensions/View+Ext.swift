@@ -124,3 +124,22 @@ extension Color {
         }
     }
 }
+
+
+extension Text {
+    init(any value: Any) {
+        if let val = value as? String {
+            self = Text(val)
+        } else if let val = value as? Bool {
+            self = Text(val ? "Yes" : "No")
+        } else if let val = value as? Int {
+            self = Text("\(val)")
+        } else if let val = value as? Double {
+            self = Text("\(val)")
+        } else if let val = value as? CGFloat {
+            self = Text("\(val)")
+        } else {
+            self = Text("\(String(describing: (value as AnyObject).description))")
+        }
+    }
+}

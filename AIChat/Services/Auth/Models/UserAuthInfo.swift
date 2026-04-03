@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 
-struct UserAuthInfo: Sendable {
+struct UserAuthInfo: Sendable, Codable {
     let uid: String
     let email: String?
     let isAnonymous: Bool
@@ -27,6 +27,13 @@ struct UserAuthInfo: Sendable {
         self.isAnonymous = isAnonymous
         self.creationDate = creationDate
         self.lastSignInDate = lastSignInDate
+    }
+    enum CodingKeys: String, CodingKey {
+        case uid
+        case email
+        case isAnonymous = "is_anonymous"
+        case creationDate = "creation_date"
+        case lastSignInDate = "last_sign_in_date"
     }
 }
 
@@ -89,5 +96,15 @@ extension UserAuthInfo {
             creationDate: creationDate,
             lastSignInDate: lastSignInDate
         )
+    }
+    var eventParameters: [String: Any] {
+        let dict: [String: Any?] = [
+            "uauth_\(CodingKeys.uid.rawValue)": uid,
+            "uauth_\(CodingKeys.email.rawValue)": email,
+            "uauth_\(CodingKeys.isAnonymous.rawValue)": isAnonymous.description,
+            "uauth_\(CodingKeys.creationDate.rawValue)": creationDate?.description,
+            "uauth_\(CodingKeys.lastSignInDate.rawValue)": lastSignInDate?.description
+        ]
+        return dict.compactMapValues({ $0 })
     }
 }
