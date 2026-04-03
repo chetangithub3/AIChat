@@ -125,7 +125,6 @@ extension Color {
     }
 }
 
-
 extension Text {
     init(any value: Any) {
         if let val = value as? String {

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
+    @Environment(LogManager.self) private var logManager
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
     @State var appState: AppState = AppState()

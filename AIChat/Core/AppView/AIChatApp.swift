@@ -18,6 +18,7 @@ struct AIChatApp: App {
                 .environment(delegate.dependencies.userManager)
                 .environment(delegate.dependencies.authManager)
                 .environment(delegate.dependencies.chatManager)
+                .environment(delegate.dependencies.logManager)
         }
     }
 }
@@ -51,7 +52,7 @@ enum BuildConfiguration {
                 let plist = Bundle.main.path(forResource: "GoogleService-Info-Dev", ofType: "plist")!
                 let options =  FirebaseOptions(contentsOfFile: plist)!
                 FirebaseApp.configure(options: options)
-            case .mock(_):
+            case .mock:
                 // Mock build does not run Firebase
                 return
             case .prod:
@@ -69,6 +70,7 @@ struct Dependencies {
     var aiManager: AIManager
     var avatarManager: AvatarManager
     var chatManager: ChatManager
+    var logManager: LogManager
 
     init(config: BuildConfiguration) {
         switch config {
@@ -78,18 +80,25 @@ struct Dependencies {
                 self.aiManager = AIManager(service: OpenAIService())
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
+                self.logManager = LogManager(services: [
+                    ConsoleLogService()
+                ])
             case .mock(let isSignedIn):
                 self.authManager = AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil))
                 self.userManager = UserManager(services: MockUserServices(user: isSignedIn ? .mock: nil))
                 self.aiManager = AIManager(service: MockAIService())
                 self.avatarManager = AvatarManager(service: MockAvatarService(), local: MockLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: MockChatService())
+                self.logManager = LogManager(services: [
+                    ConsoleLogService()
+                ])
             case .prod:
                 self.authManager = AuthManager(service: FirebaseAuthService())
                 self.userManager = UserManager(services: ProductionUserServices())
                 self.aiManager = AIManager(service: OpenAIService())
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
+                self.logManager = LogManager(services: [])
         }
     }
 }
@@ -103,5 +112,6 @@ extension View {
             .environment(UserManager(services: MockUserServices(user: isSignedIn ? .mock: nil)))
             .environment(AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil)))
             .environment(AppState())
+            .environment(LogManager(services: []))
     }
 }
