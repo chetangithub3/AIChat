@@ -33,6 +33,9 @@ struct AppView: View {
                 }
             }
         }
+        .onAppear {
+            logManager.identifyUser(userId: "userManager.currentUser?.userId", name: "wsdewfqf", email: "efqf")
+        }
     }
     private func checkUserStatus() async {
         if let user = authManager.auth {
