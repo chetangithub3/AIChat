@@ -77,3 +77,15 @@ struct ChatModel: Identifiable, Codable, Sendable, Hashable, StringIdentifiable 
         mocks[0]
     }
 }
+extension ChatModel {
+    var eventParameters: [String: Any] {
+        let dict: [String: Any?] = [
+            "chat_\(CodingKeys.id.rawValue)": id,
+            "chat_\(CodingKeys.userId.rawValue)": userId,
+            "chat_\(CodingKeys.avatarId.rawValue)": avatarId,
+            "chat_\(CodingKeys.dateCreated.rawValue)": dateCreated,
+            "chat_\(CodingKeys.dateUpdated.rawValue)": dateUpdated
+        ]
+        return dict.compactMapValues { $0 }
+    }
+}

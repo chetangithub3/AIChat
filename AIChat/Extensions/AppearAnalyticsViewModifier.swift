@@ -18,7 +18,6 @@ struct AppearAnalyticsViewModifier: ViewModifier {
             .onDisappear {
                 logManager.trackEvent(event: Event.disappear(name: name))
             }
-            
     }
     enum Event: LoggableEvent {
         var eventName: String {
@@ -27,22 +26,17 @@ struct AppearAnalyticsViewModifier: ViewModifier {
                 case .disappear(let name): return "\(name)_Disappear"
             }
         }
-        
-        var parameters: [String : Any]? {
+        var parameters: [String: Any]? {
             nil
         }
-        
         var type: LogType {
             .analytic
         }
-        
         case appear(name: String), disappear(name: String)
-        
     }
 }
 
 extension View {
-    
     func screenAppearAnalytic(name: String) -> some View {
         modifier(AppearAnalyticsViewModifier(name: name))
     }

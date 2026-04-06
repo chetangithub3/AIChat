@@ -93,7 +93,6 @@ struct CategoryListView: View {
         } catch {
             logManager.trackEvent(event: Event.loadAvatarsFail(error: error))
             showAlert = AnyAppAlert(error: error)
-            
         }
         isLoading = false
     }

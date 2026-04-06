@@ -61,10 +61,10 @@ struct AppView: View {
         var eventName: String {
             switch self {
                 case .existingAuthStart: return "AppView_ExistingAuth"
-                case .existingAuthFail(let error): return "AppView_ExistingAuth_Fail"
+                case .existingAuthFail: return "AppView_ExistingAuth_Fail"
                 case .anonAuthStart: return "AppView_AnonAuth_Start"
                 case .anonAuthSuccess: return "AppView_AnonAuth_Success"
-                case .anonAuthFail(error: let error): return "AppView_AnonAuth_Fail"
+                case .anonAuthFail: return "AppView_AnonAuth_Fail"
             }
         }
         var parameters: [String: Any]? {
@@ -85,7 +85,6 @@ struct AppView: View {
         case anonAuthStart, anonAuthSuccess, anonAuthFail(error: Error)
     }
 }
-
 
 #Preview("Tabbar View") {
    AppView(appState: AppState(showOnboardingView: false))

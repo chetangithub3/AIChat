@@ -78,6 +78,13 @@ struct AIChatModel: Codable {
             content: content
         )
     }
+    var eventParameters: [String: Any] {
+        let dict: [String: Any?] = [
+            "aiChat_\(CodingKeys.role.rawValue)": role,
+            "aiChat_\(CodingKeys.content.rawValue)": content
+        ]
+        return dict.compactMapValues { $0 }
+    }
 }
 
 enum AIChatRole: String, Codable {
