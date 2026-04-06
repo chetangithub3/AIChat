@@ -125,20 +125,24 @@ extension Color {
     }
 }
 
-extension Text {
-    init(any value: Any) {
-        if let val = value as? String {
-            self = Text(val)
-        } else if let val = value as? Bool {
-            self = Text(val ? "Yes" : "No")
-        } else if let val = value as? Int {
-            self = Text("\(val)")
-        } else if let val = value as? Double {
-            self = Text("\(val)")
-        } else if let val = value as? CGFloat {
-            self = Text("\(val)")
-        } else {
-            self = Text("\(String(describing: (value as AnyObject).description))")
+extension String {
+    static func convertToString(_ value: Any) -> String? {
+        switch value {
+            case let value as String: return value
+            case let value as Int: return String(value)
+            case let value as Float: return String(value)
+            case let value as Double: return String(value)
+            case let value as Bool: return String(value)
+            case let value as Date: return value.formatted(date: .abbreviated, time: .shortened)
+            case let arr as [Any]: return arr.compactMap({String.convertToString($0)}).sorted().joined(separator: ", ")
+            case let value as CustomStringConvertible: return value.description
+            default: return nil
         }
+    }
+    func clipped(maxCharacters: Int) -> String {
+        String(prefix(maxCharacters))
+    }
+    func replaceSpacesWithUnderscore() -> String {
+        self.replacingOccurrences(of: " ", with: "_")
     }
 }

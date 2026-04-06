@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		610F5CFD2F81379500960E3F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 610F5CFC2F81379500960E3F /* FirebaseAnalytics */; };
 		616078EF2F76520800A298F4 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 616078EE2F76520800A298F4 /* OpenAI */; };
 		616079042F76B7E600A298F4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 616079032F76B7E600A298F4 /* FirebaseStorage */; };
 		617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 617271C72ED925AC00EF5FF0 /* SwiftfulUtilities */; };
@@ -84,6 +85,7 @@
 				616079042F76B7E600A298F4 /* FirebaseStorage in Frameworks */,
 				61A691CC2F6EEE0200215CAB /* FirebaseFirestore in Frameworks */,
 				617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */,
+				610F5CFD2F81379500960E3F /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,6 +163,7 @@
 				61A691CE2F6FDDB200215CAB /* SwiftfulFirestore */,
 				616078EE2F76520800A298F4 /* OpenAI */,
 				616079032F76B7E600A298F4 /* FirebaseStorage */,
+				610F5CFC2F81379500960E3F /* FirebaseAnalytics */,
 			);
 			productName = AIChat;
 			productReference = 61AA5E0B2E41AF0100BE26CE /* AIChat.app */;
@@ -863,6 +866,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		610F5CFC2F81379500960E3F /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
 		616078EE2F76520800A298F4 /* OpenAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 616078ED2F76520800A298F4 /* XCRemoteSwiftPackageReference "OpenAI" */;

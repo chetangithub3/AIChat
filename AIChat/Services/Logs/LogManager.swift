@@ -20,9 +20,9 @@ class LogManager {
             service.identifyUser(userId: userId, name: name, email: email)
         }
     }
-    func addUserProperties(dict: [String: Any]) {
+    func addUserProperties(dict: [String: Any], isHighPriority: Bool) {
         for service in services {
-            service.addUserProperties(dict: dict)
+            service.addUserProperties(dict: dict, isHighPriority: isHighPriority)
         }
     }
     func deleteUserProfile() {
@@ -31,6 +31,11 @@ class LogManager {
         }
     }
     func trackEvent(event: any LoggableEvent) {
+        for service in services {
+            service.trackEvent(event: event)
+        }
+    }
+    func trackEvent(event: AnyLoggableEvent) {
         for service in services {
             service.trackEvent(event: event)
         }

@@ -62,9 +62,9 @@ struct ConsoleLogService: LogService {
             """
         logger.log(level: LogType.info, message: str)
     }
-    func addUserProperties(dict: [String: Any]) {
+    func addUserProperties(dict: [String: Any], isHighPriority: Bool) {
         var string = """
-            Log User Properties
+            Log User Properties (Is High Priority: \(isHighPriority.description))
             """
         if doPrintParameters {
             let sorted = dict.keys.sorted()
@@ -82,7 +82,7 @@ struct ConsoleLogService: LogService {
             """
         logger.log(level: LogType.info, message: string)
     }
-    func trackEvent(event: any LoggableEvent) {
+    func trackEvent(event: LoggableEvent) {
         var string = """
             \(event.type.emoji) \(event.eventName)
             """

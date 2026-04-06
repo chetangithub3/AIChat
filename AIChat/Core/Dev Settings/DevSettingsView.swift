@@ -43,7 +43,9 @@ struct DevSettingsView: View {
                 HStack {
                     Text(item.key)
                     Spacer()
-                    Text(any: item.value)
+                    if let str = String.convertToString(item.value) {
+                        Text(str)
+                    }
                 }
             }
         } header: {
@@ -57,7 +59,9 @@ struct DevSettingsView: View {
                 HStack {
                     Text(item.key)
                     Spacer()
-                    Text(any: item.value)
+                    if let str = String.convertToString(item.value) {
+                        Text(str)
+                    }
                 }
             }
         } header: {
@@ -71,7 +75,9 @@ struct DevSettingsView: View {
                 HStack {
                     Text(item.key)
                     Spacer()
-                    Text(any: item.value)
+                    if let str = String.convertToString(item.value) {
+                        Text(str)
+                    }
                 }
             }
         } header: {
