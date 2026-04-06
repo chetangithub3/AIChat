@@ -81,7 +81,7 @@ struct Dependencies {
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
                 self.logManager = LogManager(services: [
-                    ConsoleLogService()
+                    ConsoleLogService(), FirebaseAnalyticsService(), MixPanelService(token: Keys.mixPanelToken)
                 ])
             case .mock(let isSignedIn):
                 self.authManager = AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil))
@@ -90,7 +90,7 @@ struct Dependencies {
                 self.avatarManager = AvatarManager(service: MockAvatarService(), local: MockLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: MockChatService())
                 self.logManager = LogManager(services: [
-                    ConsoleLogService(doPrintParameters: false), FirebaseAnalyticsService()
+                    ConsoleLogService(doPrintParameters: false)
                 ])
             case .prod:
                 self.authManager = AuthManager(service: FirebaseAuthService())
@@ -99,7 +99,7 @@ struct Dependencies {
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
                 self.logManager = LogManager(services: [
-                    FirebaseAnalyticsService()
+                    FirebaseAnalyticsService(), MixPanelService(token: Keys.mixPanelToken)
                 ])
         }
     }
