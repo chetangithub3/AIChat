@@ -34,7 +34,6 @@ struct MixPanelService: LogService {
         }
         instance.people.set(properties: userProperties)
     }
-    
     func deleteUserProfile() {
         instance.people.deleteUser()
     }

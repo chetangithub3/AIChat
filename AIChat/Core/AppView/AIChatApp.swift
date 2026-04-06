@@ -81,7 +81,10 @@ struct Dependencies {
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
                 self.logManager = LogManager(services: [
-                    ConsoleLogService(), FirebaseAnalyticsService(), MixPanelService(token: Keys.mixPanelToken)
+                    ConsoleLogService(),
+                    FirebaseAnalyticsService(),
+                    MixPanelService(token: Keys.mixPanelToken),
+                    FirebaseCrashlyticsService()
                 ])
             case .mock(let isSignedIn):
                 self.authManager = AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil))

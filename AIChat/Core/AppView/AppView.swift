@@ -35,6 +35,10 @@ struct AppView: View {
         }
         .onAppear {
             logManager.identifyUser(userId: "userManager.currentUser?.userId", name: "wsdewfqf", email: "efqf")
+            logManager.trackEvent(event: TestEvent.alpha)
+            logManager.trackEvent(event: TestEvent.beta)
+            logManager.trackEvent(event: TestEvent.gamma)
+            logManager.trackEvent(event: TestEvent.delta)
         }
     }
     private func checkUserStatus() async {
@@ -55,6 +59,44 @@ struct AppView: View {
             }
         }
     }
+}
+enum TestEvent: LoggableEvent {
+    var eventName: String {
+        switch self {
+            case .alpha:
+                return "alpha"
+            case .beta:
+                return "beta"
+            case .gamma:
+                return "gamma"
+            case .delta:
+                return "delta"
+        }
+    }
+    var parameters: [String: Any]? {
+        switch self {
+            case .alpha, .beta:
+                return [
+                    "aaa": 123,
+                    "bbb": true
+                ]
+            default:
+                return nil
+        }
+    }
+    var type: LogType {
+        switch self {
+            case .alpha:
+                return .info
+            case .beta:
+                return .analytic
+            case .gamma:
+                return .warning
+            case .delta:
+                return .severe
+        }
+    }
+    case alpha, beta, gamma, delta
 }
 
 #Preview("Tabbar View") {
