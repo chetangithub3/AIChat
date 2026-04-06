@@ -33,71 +33,59 @@ struct AppView: View {
                 }
             }
         }
-        .onAppear {
-            logManager.identifyUser(userId: "userManager.currentUser?.userId", name: "wsdewfqf", email: "efqf")
-            logManager.trackEvent(event: TestEvent.alpha)
-            logManager.trackEvent(event: TestEvent.beta)
-            logManager.trackEvent(event: TestEvent.gamma)
-            logManager.trackEvent(event: TestEvent.delta)
-        }
+        .screenAppearAnalytic(name: "AppView")
     }
     private func checkUserStatus() async {
         if let user = authManager.auth {
+            logManager.trackEvent(event: Event.existingAuthStart)
             do {
                 try await userManager.logIn(auth: user, isNewUser: false)
             } catch {
-                try? await Task.sleep(for: .seconds(5))
+                logManager.trackEvent(event: Event.existingAuthFail(error: error))
                 await checkUserStatus()
             }
         } else {
             do {
+                logManager.trackEvent(event: Event.anonAuthStart)
                 let result = try await authManager.signInAnonymously()
                 try await userManager.logIn(auth: result.user, isNewUser: result.isNewUser)
+                logManager.trackEvent(event: Event.anonAuthSuccess)
             } catch {
+                logManager.trackEvent(event: Event.anonAuthFail(error: error))
                 try? await Task.sleep(for: .seconds(5))
                 await checkUserStatus()
             }
         }
     }
+    enum Event: LoggableEvent {
+        var eventName: String {
+            switch self {
+                case .existingAuthStart: return "AppView_ExistingAuth"
+                case .existingAuthFail(let error): return "AppView_ExistingAuth_Fail"
+                case .anonAuthStart: return "AppView_AnonAuth_Start"
+                case .anonAuthSuccess: return "AppView_AnonAuth_Success"
+                case .anonAuthFail(error: let error): return "AppView_AnonAuth_Fail"
+            }
+        }
+        var parameters: [String: Any]? {
+            switch self {
+                case .existingAuthFail(error: let error), .anonAuthFail(error: let error):
+                    return error.eventParameters
+                default:
+                    return nil
+            }
+        }
+        var type: LogType {
+            switch self {
+                case .anonAuthFail, .existingAuthFail: return .severe
+                default: return .analytic
+            }
+        }
+        case existingAuthStart, existingAuthFail(error: Error)
+        case anonAuthStart, anonAuthSuccess, anonAuthFail(error: Error)
+    }
 }
-enum TestEvent: LoggableEvent {
-    var eventName: String {
-        switch self {
-            case .alpha:
-                return "alpha"
-            case .beta:
-                return "beta"
-            case .gamma:
-                return "gamma"
-            case .delta:
-                return "delta"
-        }
-    }
-    var parameters: [String: Any]? {
-        switch self {
-            case .alpha, .beta:
-                return [
-                    "aaa": 123,
-                    "bbb": true
-                ]
-            default:
-                return nil
-        }
-    }
-    var type: LogType {
-        switch self {
-            case .alpha:
-                return .info
-            case .beta:
-                return .analytic
-            case .gamma:
-                return .warning
-            case .delta:
-                return .severe
-        }
-    }
-    case alpha, beta, gamma, delta
-}
+
 
 #Preview("Tabbar View") {
    AppView(appState: AppState(showOnboardingView: false))

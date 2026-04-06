@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CategoryListView: View {
+    @Environment(LogManager.self) private var logManager
     @Environment(AvatarManager.self) private var avatarManager
     @Binding var path: [NavigationPathOption]
     var category: CharacterOption = .alien
@@ -51,19 +52,48 @@ struct CategoryListView: View {
         }
         .listStyle(.plain)
         .ignoresSafeArea()
+        .screenAppearAnalytic(name: "CategoryListView")
         .task {
             await loadAvatars()
+        }
+    }
+    enum Event: LoggableEvent {
+        case avatarPressed(avatar: AvatarModel), loadAvatarsStart, loadAvatarsSuccess, loadAvatarsFail(error: Error)
+        var eventName: String {
+            switch self {
+                case .avatarPressed: return "CategoryListView_Avatar_Pressed"
+                case .loadAvatarsStart: return "CategoryListView_LoadAvatars_Start"
+                case .loadAvatarsSuccess: return "CategoryListView_LoadAvatars_Success"
+                case .loadAvatarsFail: return "CategoryListView_LoadAvatars_Fail"
+            }
+        }
+        var parameters: [String: Any]? {
+            switch self {
+                case .avatarPressed(avatar: let avatar): return avatar.eventParameters
+                case .loadAvatarsFail(error: let error): return error.eventParameters
+                default: return nil
+            }
+        }
+        var type: LogType {
+            switch self {
+                case .loadAvatarsFail: return .severe
+                default: return .analytic
+            }
         }
     }
     func onAvatarPresed(avatar: AvatarModel) {
         path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
     func loadAvatars() async {
+        logManager.trackEvent(event: Event.loadAvatarsStart)
         isLoading = true
         do {
             avatars = try await avatarManager.getAvatarsForCategory(category: category)
+            logManager.trackEvent(event: Event.loadAvatarsSuccess)
         } catch {
+            logManager.trackEvent(event: Event.loadAvatarsFail(error: error))
             showAlert = AnyAppAlert(error: error)
+            
         }
         isLoading = false
     }

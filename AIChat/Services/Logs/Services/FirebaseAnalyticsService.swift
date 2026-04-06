@@ -37,6 +37,7 @@ struct FirebaseAnalyticsService: LogService {
     func deleteUserProfile() {
     }
     func trackEvent(event: any LoggableEvent) {
+        guard event.type != .info else { return }
         var parameters = event.parameters ?? [:]
         for (key, value) in parameters {
             if let date = value as? Date, let str = String.convertToString(date) {
