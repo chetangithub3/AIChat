@@ -52,13 +52,13 @@ enum CharacterLocation: String, Codable, CaseIterable, Hashable {
     }
 }
 
-struct AvatarModelDescriptionBuilder {
-    let charaterOption: CharacterOption
+struct AvatarModelDescriptionBuilder: Codable {
+    let characterOption: CharacterOption
     let characterAction: CharacterAction
     let characterLocation: CharacterLocation
 
     init(charaterOption: CharacterOption, characterAction: CharacterAction, characterLocation: CharacterLocation) {
-        self.charaterOption = charaterOption
+        self.characterOption = charaterOption
         self.characterAction = characterAction
         self.characterLocation = characterLocation
     }
@@ -72,6 +72,19 @@ struct AvatarModelDescriptionBuilder {
     }
 
     var characterDescription: String {
-        "\(charaterOption.startsWithAVowel ? "An" : "A") \(charaterOption.rawValue.capitalized) is \(characterAction.rawValue.capitalized) in the \(characterLocation.rawValue.capitalized)"
+        "\(characterOption.startsWithAVowel ? "An" : "A") \(characterOption.rawValue.capitalized) is \(characterAction.rawValue.capitalized) in the \(characterLocation.rawValue.capitalized)"
+    }
+    enum CodingKeys: String, CodingKey {
+        case characterOption  = "character_option"
+        case characterAction  = "character_action"
+        case characterLocation = "character_location"
+    }
+    var eventParameters: [String: Any] {
+        [
+            "\(CodingKeys.characterOption.rawValue)": characterOption.rawValue,
+            "\(CodingKeys.characterAction.rawValue)": characterAction.rawValue,
+            "\(CodingKeys.characterLocation.rawValue)": characterLocation.rawValue,
+            "character_description": characterDescription
+        ]
     }
 }

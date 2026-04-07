@@ -40,7 +40,7 @@ struct ProfileView: View {
                 await loadData()
             }
         }, content: {
-            CreateAvatarview()
+            CreateAvatarView()
         })
         .task {
             await loadData()
