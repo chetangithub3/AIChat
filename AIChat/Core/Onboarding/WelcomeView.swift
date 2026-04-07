@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @Environment(LogManager.self) private var logManager
     @Environment(AppState.self) private var root
     var imageURLString: String = Constants.randomImageURLString
     @State private var showSignInView: Bool = false
@@ -33,9 +34,11 @@ struct WelcomeView: View {
                 )
                 .presentationDetents([.medium])
             }
+            .screenAppearAnalytic(name: "WelcomeView")
         }
     }
     private func handleDidSignIn(isNewUser: Bool) {
+        logManager.trackEvent(event: Event.signInSuccess(isNewUser: isNewUser))
         if !isNewUser {
             root.updateViewState(showOnboarding: false)
         }
@@ -57,6 +60,7 @@ struct WelcomeView: View {
 
     private func tapAction() {
         showSignInView = true
+        logManager.trackEvent(event: Event.signInPressed)
     }
 
     private var policyLinks: some View {
@@ -85,6 +89,28 @@ struct WelcomeView: View {
                 .fontWeight(.light)
                 .foregroundStyle(.secondary)
         }
+    }
+    enum Event: LoggableEvent {
+        case signInPressed
+        case signInSuccess(isNewUser: Bool)
+
+        var eventName: String {
+            switch self {
+            case .signInPressed:      return "WelcomeView_Signin_Pressed"
+            case .signInSuccess:     return "WelcomeView_SignIn_Success"
+            }
+        }
+
+        var parameters: [String: Any]? {
+            switch self {
+            case .signInSuccess(let isNewUser):
+                return ["is_new_user": isNewUser]
+            default:
+                return nil
+            }
+        }
+
+        var type: LogType { .analytic }
     }
 }
 

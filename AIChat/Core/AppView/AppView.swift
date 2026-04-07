@@ -33,7 +33,6 @@ struct AppView: View {
                 }
             }
         }
-        .screenAppearAnalytic(name: "AppView")
     }
     private func checkUserStatus() async {
         if let user = authManager.auth {

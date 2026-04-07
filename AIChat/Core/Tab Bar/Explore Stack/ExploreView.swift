@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct ExploreView: View {
+    @Environment(LogManager.self) private var logManager
+    @Environment(AvatarManager.self) private var avatarManager
     @State private var featuredAvatars: [AvatarModel] = []
     @State private var popularAvatars: [AvatarModel] = []
     @State private var categories = CharacterOption.allCases
     @State private var path: [NavigationPathOption] = []
-    @Environment(AvatarManager.self) private var avatarManager
     @State private var isLoadingFeatured: Bool = false
     @State private var isLoadingPopular: Bool = false
     @State private var showDevSettings: Bool = false
@@ -55,6 +56,7 @@ struct ExploreView: View {
             .sheet(isPresented: $showDevSettings) {
                 Text("Dev settings")
             }
+            .screenAppearAnalytic(name: "ExploreView")
             .navigationDestinationForCoreModules(path: $path)
             .task {
                 await loadFeaturedAvatars()
@@ -77,6 +79,7 @@ struct ExploreView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Button("Try again") {
+                logManager.trackEvent(event: Event.tryAgainPressed)
                 Task {
                     await loadFeaturedAvatars()
                 }
@@ -93,19 +96,25 @@ struct ExploreView: View {
             }
     }
     private func loadFeaturedAvatars() async {
+        logManager.trackEvent(event: Event.loadFeaturedAvatarsStart)
         guard featuredAvatars.isEmpty else { return }
         isLoadingFeatured = true
         do {
             self.featuredAvatars = try await avatarManager.getFeaturedAvatars()
+            logManager.trackEvent(event: Event.loadFeaturedAvatarsSuccess(avatars: featuredAvatars))
         } catch {
+            logManager.trackEvent(event: Event.loadFeaturedAvatarsFail(error: error))
         }
         isLoadingFeatured = false
     }
     private func loadPopularAvatars() async {
+        logManager.trackEvent(event: Event.loadPopularAvatarsStart)
         do {
             isLoadingPopular = true
             popularAvatars = try await avatarManager.getPopularAvatars()
+            logManager.trackEvent(event: Event.loadPopularAvatarsSuccess(avatars: popularAvatars))
         } catch {
+            logManager.trackEvent(event: Event.loadPopularAvatarsFail(error: error))
         }
         isLoadingPopular = false
     }
@@ -143,9 +152,8 @@ struct ExploreView: View {
                             .anyButton {
                                 onCategoryItemPressed(category, imageName: imageName)
                             }
-
                         }
-                                            }
+                    }
                 }
             }
             .scrollTargetLayout()
@@ -175,13 +183,61 @@ struct ExploreView: View {
         }
     }
     private func onCategoryItemPressed(_ category: CharacterOption, imageName: String) {
+        logManager.trackEvent(event: Event.categoryItemPressed(category: category))
         path.append(.category(category: category, imageName: imageName))
     }
     private func onPopularItemPressed(avatar: AvatarModel) {
+        logManager.trackEvent(event: Event.popularAvatarPressed(avatar: avatar))
         path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
     private func onFeaturedAvatarPressed(avatar: AvatarModel) {
+        logManager.trackEvent(event: Event.featuredAvatarPressed(avatar: avatar))
         path.append(.chat(avatarId: avatar.avatarId, chat: nil))
+    }
+    enum Event: LoggableEvent {
+        case loadFeaturedAvatarsStart, loadFeaturedAvatarsSuccess(avatars: [AvatarModel]), loadFeaturedAvatarsFail(error: Error)
+        case loadPopularAvatarsStart, loadPopularAvatarsSuccess(avatars: [AvatarModel]), loadPopularAvatarsFail(error: Error)
+        case categoryItemPressed(category: CharacterOption), popularAvatarPressed(avatar: AvatarModel), featuredAvatarPressed(avatar: AvatarModel)
+        case tryAgainPressed
+        var eventName: String {
+            switch self {
+             case .loadFeaturedAvatarsStart:     return "ExploreView_LoadFeaturedAvatars_Start"
+             case .loadFeaturedAvatarsSuccess:   return "ExploreView_LoadFeaturedAvatars_Success"
+             case .loadFeaturedAvatarsFail:      return "ExploreView_LoadFeaturedAvatars_Fail"
+
+             case .loadPopularAvatarsStart:      return "ExploreView_LoadPopularAvatars_Start"
+             case .loadPopularAvatarsSuccess:    return "ExploreView_LoadPopularAvatars_Success"
+             case .loadPopularAvatarsFail:       return "ExploreView_LoadPopularAvatars_Fail"
+
+             case .categoryItemPressed:          return "ExploreView_CategoryItem_Pressed"
+             case .popularAvatarPressed:         return "ExploreView_PopularAvatar_Pressed"
+             case .featuredAvatarPressed:        return "ExploreView_FeaturedAvatar_Pressed"
+             case .tryAgainPressed:              return "ExploreView_TryAgain_Pressed"
+             }
+        }
+        var parameters: [String: Any]? {
+            switch self {
+                case .loadPopularAvatarsFail(error: let error), .loadFeaturedAvatarsFail(error: let error):
+                    return error.eventParameters
+                case .featuredAvatarPressed(avatar: let avatar), .popularAvatarPressed(avatar: let avatar):
+                    return avatar.eventParameters
+                case .loadPopularAvatarsSuccess(avatars: let avatars), .loadFeaturedAvatarsSuccess(avatars: let avatars):
+                    var dict: [String: Any] = [:]
+                    for avatar in avatars {
+                        dict.merge(avatar.eventParameters)
+                    }
+                    return dict
+                case .categoryItemPressed(category: let option):
+                    return ["category": option.rawValue]
+                default: return nil
+            }
+        }
+        var type: LogType {
+            switch self {
+                case .loadFeaturedAvatarsFail, .loadPopularAvatarsFail: return .severe
+                default: return .analytic
+            }
+        }
     }
 }
 
