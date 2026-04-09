@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import SwiftfulUtilities
 struct AppView: View {
     @Environment(LogManager.self) private var logManager
     @Environment(AuthManager.self) private var authManager
@@ -24,7 +24,11 @@ struct AppView: View {
         )
         .environment(appState)
         .task {
+            try? await Task.sleep(for: .seconds(3))
             await checkUserStatus()
+        }
+        .task {
+            await showATTPromptIfNeeded()
         }
         .onChange(of: appState.showOnboardingView) { _, showOnboardingView in
             if showOnboardingView {
@@ -56,6 +60,12 @@ struct AppView: View {
             }
         }
     }
+    private func showATTPromptIfNeeded() async {
+        #if !DEBUG
+        let status = await AppTrackingTransparencyHelper.requestTrackingAuthorization()
+        logManager.trackEvent(event: Event.attStatus(dict: status.eventParameters))
+        #endif
+    }
     enum Event: LoggableEvent {
         var eventName: String {
             switch self {
@@ -64,12 +74,15 @@ struct AppView: View {
                 case .anonAuthStart: return "AppView_AnonAuth_Start"
                 case .anonAuthSuccess: return "AppView_AnonAuth_Success"
                 case .anonAuthFail: return "AppView_AnonAuth_Fail"
-            }
+                case .attStatus: return "AppView_ATTStatus"
+                            }
         }
         var parameters: [String: Any]? {
             switch self {
                 case .existingAuthFail(error: let error), .anonAuthFail(error: let error):
                     return error.eventParameters
+                case .attStatus(dict: let dict):
+                    return dict
                 default:
                     return nil
             }
@@ -82,6 +95,8 @@ struct AppView: View {
         }
         case existingAuthStart, existingAuthFail(error: Error)
         case anonAuthStart, anonAuthSuccess, anonAuthFail(error: Error)
+        case attStatus(dict: [String: Any])
+
     }
 }
 
