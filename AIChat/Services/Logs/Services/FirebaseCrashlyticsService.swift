@@ -24,7 +24,7 @@ struct FirebaseCrashlyticsService: LogService {
     func addUserProperties(dict: [String: Any], isHighPriority: Bool) {
         guard isHighPriority else { return }
         for (key, value) in dict {
-            crashlytics.setValue(value, forKey: key)
+            crashlytics.setCustomValue(value, forKey: key)
         }
     }
     func deleteUserProfile() {

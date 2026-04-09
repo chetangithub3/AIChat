@@ -75,35 +75,35 @@ struct Dependencies {
     init(config: BuildConfiguration) {
         switch config {
             case .dev:
-                self.authManager = AuthManager(service: FirebaseAuthService())
-                self.userManager = UserManager(services: ProductionUserServices())
-                self.aiManager = AIManager(service: OpenAIService())
-                self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
-                self.chatManager = ChatManager(service: FirebaseChatService())
                 self.logManager = LogManager(services: [
-                    ConsoleLogService(),
+                    ConsoleLogService(doPrintParameters: true),
                     FirebaseAnalyticsService(),
                     MixPanelService(token: Keys.mixPanelToken),
                     FirebaseCrashlyticsService()
                 ])
-            case .mock(let isSignedIn):
-                self.authManager = AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil))
-                self.userManager = UserManager(services: MockUserServices(user: isSignedIn ? .mock: nil))
-                self.aiManager = AIManager(service: MockAIService())
-                self.avatarManager = AvatarManager(service: MockAvatarService(), local: MockLocalAvatarPersistence())
-                self.chatManager = ChatManager(service: MockChatService())
-                self.logManager = LogManager(services: [
-                    ConsoleLogService(doPrintParameters: false)
-                ])
-            case .prod:
-                self.authManager = AuthManager(service: FirebaseAuthService())
-                self.userManager = UserManager(services: ProductionUserServices())
+                self.authManager = AuthManager(service: FirebaseAuthService(), logManager: logManager)
+                self.userManager = UserManager(services: ProductionUserServices(), logManager: logManager)
                 self.aiManager = AIManager(service: OpenAIService())
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
+            case .mock(let isSignedIn):
+                self.logManager = LogManager(services: [
+                    ConsoleLogService(doPrintParameters: false)
+                ])
+                self.authManager = AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil), logManager: logManager)
+                self.userManager = UserManager(services: MockUserServices(user: isSignedIn ? .mock: nil), logManager: logManager)
+                self.aiManager = AIManager(service: MockAIService())
+                self.avatarManager = AvatarManager(service: MockAvatarService(), local: MockLocalAvatarPersistence())
+                self.chatManager = ChatManager(service: MockChatService())
+            case .prod:
                 self.logManager = LogManager(services: [
                     FirebaseAnalyticsService(), MixPanelService(token: Keys.mixPanelToken)
                 ])
+                self.authManager = AuthManager(service: FirebaseAuthService(), logManager: logManager)
+                self.userManager = UserManager(services: ProductionUserServices(), logManager: logManager)
+                self.aiManager = AIManager(service: OpenAIService())
+                self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
+                self.chatManager = ChatManager(service: FirebaseChatService())
         }
     }
 }

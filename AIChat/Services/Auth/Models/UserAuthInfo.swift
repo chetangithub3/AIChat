@@ -99,11 +99,11 @@ extension UserAuthInfo {
     }
     var eventParameters: [String: Any] {
         let dict: [String: Any?] = [
-            "uauth_\(CodingKeys.uid.rawValue)": uid,
-            "uauth_\(CodingKeys.email.rawValue)": email,
-            "uauth_\(CodingKeys.isAnonymous.rawValue)": isAnonymous.description,
-            "uauth_\(CodingKeys.creationDate.rawValue)": creationDate?.description,
-            "uauth_\(CodingKeys.lastSignInDate.rawValue)": lastSignInDate?.description
+            "\(CodingKeys.uid.rawValue)": uid,
+            "\(CodingKeys.email.rawValue)": email,
+            "\(CodingKeys.isAnonymous.rawValue)": isAnonymous,
+            "\(CodingKeys.creationDate.rawValue)": creationDate,
+            "\(CodingKeys.lastSignInDate.rawValue)": lastSignInDate
         ]
         return dict.compactMapValues({ $0 })
     }

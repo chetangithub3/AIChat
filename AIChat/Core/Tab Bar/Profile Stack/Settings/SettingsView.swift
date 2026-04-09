@@ -160,11 +160,10 @@ struct SettingsView: View {
         Task {
             do {
                 let uid = try authManager.getAuthId()
-                async let deleteAuth: () = authManager.deleteAccount()
-                async let deleteUser: () = userManager.deleteCurrentUser()
-                async let deleteAvatars: () = avatarManager.removeAuthoIdFromAllAvatars(userId: uid)
-                async let deleteChats: () = chatManager.deleteAllChatsForUser(userId: uid)
-                let (_, _, _, _) = await (try deleteAuth, try deleteUser, try deleteAvatars, try deleteChats)
+                try await authManager.deleteAccount()
+                try await userManager.deleteCurrentUser()
+                try await avatarManager.removeAuthoIdFromAllAvatars(userId: uid)
+                try await chatManager.deleteAllChatsForUser(userId: uid)
                 logManager.trackEvent(event: Event.deleteAccountSuccess)
                 logManager.deleteUserProfile()
                 await dismissScreen()
