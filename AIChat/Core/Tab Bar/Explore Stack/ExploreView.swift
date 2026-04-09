@@ -10,6 +10,7 @@ import SwiftUI
 struct ExploreView: View {
     @Environment(LogManager.self) private var logManager
     @Environment(AvatarManager.self) private var avatarManager
+    @Environment(PushManager.self) private var pushManager
     @State private var featuredAvatars: [AvatarModel] = []
     @State private var popularAvatars: [AvatarModel] = []
     @State private var categories = CharacterOption.allCases
@@ -17,6 +18,8 @@ struct ExploreView: View {
     @State private var isLoadingFeatured: Bool = false
     @State private var isLoadingPopular: Bool = false
     @State private var showDevSettings: Bool = false
+    @State private var showNotificationButton: Bool = true
+    @State private var showPushNotificationModal: Bool = false
     var isDevOrMock: Bool {
         #if DEV || MOCK
         return true
@@ -30,7 +33,7 @@ struct ExploreView: View {
                 if featuredAvatars.isEmpty && popularAvatars.isEmpty {
                     ZStack {
                         if isLoadingFeatured || isLoadingPopular {
-                           loadingIndicator
+                            loadingIndicator
                         } else {
                             errorMessageView
                         }
@@ -52,6 +55,11 @@ struct ExploreView: View {
                         devSettingsButton
                     }
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if showNotificationButton {
+                        notificationButton
+                    }
+                }
             })
             .sheet(isPresented: $showDevSettings) {
                 Text("Dev settings")
@@ -64,7 +72,56 @@ struct ExploreView: View {
             .task {
                 await loadPopularAvatars()
             }
+            .task {
+                await shouldShowNotificationButton()
+            }
+            .onFirstAppear {
+                schedulePushNotifications()
+            }
         }
+    }
+    private func schedulePushNotifications() {
+        pushManager.schedulePushNotificationsFortheNextWeek()
+    }
+    private var pushNotificationModal: some View {
+        CustomModalView(
+            title: "Enable Notifications",
+            subTitle: "Stay updated with important alerts and reminders.",
+            primaryButtonTitle: "Allow",
+            primaryButtonAction: {
+                pushNotifModalAllowPressed()
+            },
+            secondaryButtonTitle: "Not Now",
+            secondaryButtonAction: {
+                pushNotifModalAllowPressed()
+            }
+        )
+    }
+    private func shouldShowNotificationButton() async {
+         showNotificationButton = await pushManager.canRequestAuthorization()
+    }
+    private func pushNotifModalAllowPressed() {
+        Task {
+            try await pushManager.requestAuthorization()
+            await shouldShowNotificationButton()
+        }
+        showPushNotificationModal = false
+    }
+    private func pushNotifModalRefusePressed() {
+        showPushNotificationModal = false
+    }
+    private func onNotificationButtonPressed() {
+        showPushNotificationModal = true
+    }
+    private var notificationButton: some View {
+        Image(systemName: "bell.fill")
+            .font(.headline)
+            .padding(4)
+            .tappableText()
+            .foregroundStyle(.accent)
+            .anyButton {
+                onNotificationButtonPressed()
+            }
     }
     private var loadingIndicator: some View {
         ProgressView()
@@ -244,14 +301,17 @@ struct ExploreView: View {
 #Preview("Happy") {
     ExploreView()
         .environment(AvatarManager(service: MockAvatarService()))
+        .previewEnvironment()
 }
 
 #Preview("No avatars") {
     ExploreView()
         .environment(AvatarManager(service: MockAvatarService(avatars: [], delay: 3)))
+        .previewEnvironment()
 }
 
 #Preview("Delay") {
     ExploreView()
         .environment(AvatarManager(service: MockAvatarService(delay: 5)))
+        .previewEnvironment()
 }
