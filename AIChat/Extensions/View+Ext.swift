@@ -18,6 +18,24 @@ extension View {
             .clipShape(.buttonBorder)
             .padding()
     }
+    func modalPrimaryButtonStyle() -> some View {
+        self
+            .font(.headline)
+            .tint(.white)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 35, maxHeight: 35, alignment: .center)
+            .background(.accent)
+            .clipShape(.buttonBorder)
+            .padding()
+    }
+    func modalSecondaryButtonStyle() -> some View {
+        self
+            .font(.headline)
+            .tint(.black)
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity, minHeight: 35, maxHeight: 35, alignment: .center)
+            .padding(.horizontal)
+    }
 
     func tappableTextWithAction(_ action: @escaping () -> Void, scale: CGFloat = 1) -> some View {
         self

@@ -61,10 +61,8 @@ struct AppView: View {
         }
     }
     private func showATTPromptIfNeeded() async {
-        #if !DEBUG
         let status = await AppTrackingTransparencyHelper.requestTrackingAuthorization()
         logManager.trackEvent(event: Event.attStatus(dict: status.eventParameters))
-        #endif
     }
     enum Event: LoggableEvent {
         var eventName: String {
