@@ -7,12 +7,17 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(LogManager.self) private var logManager
+    @Environment(AuthManager.self) private var authManager
+    @Environment(UserManager.self) private var userManager
+    @Environment(AvatarManager.self) private var avatarManager
     @State var showSettingsView: Bool = false
     @State var showCreateAvatarView: Bool = false
     @State var myAvatars: [AvatarModel] = []
-    var userProfile: UserModel = .mock
+    @State var userProfile: UserModel?
     @State var isLoading = true
     @State private var path: [NavigationPathOption] = []
+    @State private var showAlert: AnyAppAlert?
     var body: some View {
         NavigationStack(path: $path) {
             List {
@@ -31,18 +36,90 @@ struct ProfileView: View {
         .sheet(isPresented: $showSettingsView, content: {
             SettingsView()
         })
-        .fullScreenCover(isPresented: $showCreateAvatarView) {
-            CreateAvatarview()
-        }
+        .fullScreenCover(isPresented: $showCreateAvatarView, onDismiss: {
+            Task {
+                await loadAvatars()
+            }
+        }, content: {
+            CreateAvatarView()
+        })
         .task {
-            await loadData()
+            await loadAvatars()
+        }
+        .showCustomAlert(alert: $showAlert)
+        .screenAppearAnalytic(name: "ProfileView")
+    }
+    enum Event: LoggableEvent {
+        case loadAvatarsStart
+        case loadAvatarsSuccess(count: Int)
+        case loadAvatarsFail(error: Error)
+
+        case settingsPressed
+        case newAvatarPressed
+
+        case avatarPressed(avatar: AvatarModel)
+
+        case deleteAvatarStart(avatar: AvatarModel)
+        case deleteAvatarSuccess(avatar: AvatarModel)
+        case deleteAvatarFail(error: Error)
+
+        var eventName: String {
+            switch self {
+            case .loadAvatarsStart:        return "ProfileView_LoadAvatars_Start"
+            case .loadAvatarsSuccess:      return "ProfileView_LoadAvatars_Success"
+            case .loadAvatarsFail:         return "ProfileView_LoadAvatars_Fail"
+
+            case .settingsPressed:         return "ProfileView_Settings_Pressed"
+            case .newAvatarPressed:        return "ProfileView_NewAvatar_Pressed"
+
+            case .avatarPressed:           return "ProfileView_Avatar_Pressed"
+
+            case .deleteAvatarStart:       return "ProfileView_DeleteAvatar_Start"
+            case .deleteAvatarSuccess:     return "ProfileView_DeleteAvatar_Success"
+            case .deleteAvatarFail:        return "ProfileView_DeleteAvatar_Fail"
+            }
+        }
+
+        var parameters: [String: Any]? {
+            switch self {
+            case .loadAvatarsSuccess(let count):
+                return ["profile_avatar_count": count]
+
+            case .loadAvatarsFail(let error),
+                 .deleteAvatarFail(let error):
+                return error.eventParameters
+
+            case .avatarPressed(let avatar),
+                 .deleteAvatarStart(let avatar),
+                 .deleteAvatarSuccess(let avatar):
+                return avatar.eventParameters
+
+            default:
+                return nil
+            }
+        }
+
+        var type: LogType {
+            switch self {
+            case .loadAvatarsFail, .deleteAvatarFail:
+                return .severe
+            default:
+                return .analytic
+            }
         }
     }
-    private func loadData() async {
+    private func loadAvatars() async {
+        logManager.trackEvent(event: Event.loadAvatarsStart)
+        self.userProfile = userManager.currentUser
         isLoading = true
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        do {
+            let uid = try authManager.getAuthId()
+            myAvatars = try await avatarManager.getAvatarsForAuthor(userId: uid)
+            logManager.trackEvent(event: Event.loadAvatarsSuccess(count: myAvatars.count))
+        } catch {
+            logManager.trackEvent(event: Event.loadAvatarsFail(error: error))
+        }
         isLoading = false
-        myAvatars = AvatarModel.mocks
     }
     @ViewBuilder
     private var myAvatarsSection: some View {
@@ -85,7 +162,7 @@ struct ProfileView: View {
         Section {
             Circle()
                 .frame(width: 100, height: 100)
-                .foregroundStyle(userProfile.colorCalculated)
+                .foregroundStyle(userProfile?.colorCalculated ?? .accent)
                 .frame(maxWidth: .infinity)
         }
         .removeListRowFormatting()
@@ -97,19 +174,33 @@ struct ProfileView: View {
     }
     private func onDelete(at offsets: IndexSet) {
         guard let index = offsets.first else { return }
+        let avatar = myAvatars[index]
+        logManager.trackEvent(event: Event.deleteAvatarStart(avatar: avatar))
         myAvatars.remove(at: index)
+        Task {
+            do {
+                try await avatarManager.removeAuthorIdFromAvatar(avatarId: avatar.avatarId)
+                logManager.trackEvent(event: Event.deleteAvatarSuccess(avatar: avatar))
+            } catch {
+                showAlert = AnyAppAlert(title: "Unable to delete avatar", message: "Please try again later")
+                logManager.trackEvent(event: Event.deleteAvatarFail(error: error))
+            }
+        }
     }
     private func onSettingsButtonPressed() {
+        logManager.trackEvent(event: Event.settingsPressed)
         showSettingsView.toggle()
     }
     private func onNewAvatarButtonPressed() {
+        logManager.trackEvent(event: Event.newAvatarPressed)
         showCreateAvatarView.toggle()
     }
     private func onAvatarPressed(avatar: AvatarModel) {
-        path.append(.chat(avatarId: avatar.id))
+        logManager.trackEvent(event: Event.avatarPressed(avatar: avatar))
+        path.append(.chat(avatarId: avatar.id, chat: nil))
     }
 }
 #Preview {
-    ProfileView()
-        .environment(AppState())
+    ProfileView(userProfile: .mock)
+        .previewEnvironment()
 }

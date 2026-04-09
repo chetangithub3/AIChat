@@ -10,8 +10,8 @@ import SwiftUI
 struct ChatRowCellViewBuilder: View {
     var currentUserId: String?
     var chat: ChatModel = .mock
-    var getAvatar: () async -> AvatarModel
-    var getLastMessge: () async -> ChatMessageModel
+    var getAvatar: () async -> AvatarModel?
+    var getLastMessge: () async -> ChatMessageModel?
     @State private var avatar: AvatarModel?
     @State private var lastMessage: ChatMessageModel?
     @State private var didLoadAvatar: Bool = false
@@ -21,13 +21,13 @@ struct ChatRowCellViewBuilder: View {
     }
     private var hasNewChat: Bool {
         guard let lastMessage, let currentUserId else { return false }
-        return lastMessage.hasBeenSeenBy(userId: currentUserId)
+        return !lastMessage.hasBeenSeenBy(userId: currentUserId)
     }
     var body: some View {
         ChatRowCellView(
             imageName: avatar?.profileImageName,
             headline: isLoading ? "xxxx xxxx" : avatar?.name,
-            subheadline: isLoading ? "xxxx xxxx xxxx" : lastMessage?.content,
+            subheadline: isLoading ? "xxxx xxxx xxxx" : lastMessage?.content?.content,
             hasNewChat: isLoading ? false : hasNewChat
         )
         .redacted(reason: isLoading ? .placeholder : [])

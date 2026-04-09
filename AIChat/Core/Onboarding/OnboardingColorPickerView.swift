@@ -47,6 +47,7 @@ struct OnboardingColorPickerView: View {
                 footerButton(color: color)
             }
         }
+        .screenAppearAnalytic(name: "OBColorPickerView")
         .transition(AnyTransition.move(edge: .bottom))
     }
 

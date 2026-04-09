@@ -10,14 +10,15 @@ import SwiftUI
 struct ChatBubbleViewBuilder: View {
     var message: ChatMessageModel = .mock
     var isCurrentUser: Bool = false
+    var currentUserBackgroundColor: Color = .accentColor
     var imageName: String?
     var onImagePressed: (() -> Void)?
     var body: some View {
         ChatBubbleView(
             showImage: !isCurrentUser,
             textColor: isCurrentUser ? .white : .primary,
-            backgroundColor: isCurrentUser ? .accent : Color(uiColor: .systemGray5),
-            text: message.content ?? "",
+            backgroundColor: isCurrentUser ? currentUserBackgroundColor : Color(uiColor: .systemGray5),
+            text: message.content?.content ?? "",
             imageName: imageName,
             onImagePressed: onImagePressed
         )
@@ -37,10 +38,11 @@ struct ChatBubbleViewBuilder: View {
                     id: UUID().uuidString,
                     chatId: UUID().uuidString,
                     authorId: UUID().uuidString,
-                    content: "This is long content that goes onto multiple lines. It should be truncated appropriately. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    content: AIChatModel(role: .user, content: "This is long content that goes onto multiple lines. It should be truncated appropriately. Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
                     createdAt: .now,
                     seenByIds: nil
-                )
+                ),
+                currentUserBackgroundColor: .blue
             )
             ChatBubbleViewBuilder()
             ChatBubbleViewBuilder()
@@ -49,10 +51,11 @@ struct ChatBubbleViewBuilder: View {
                     id: UUID().uuidString,
                     chatId: UUID().uuidString,
                     authorId: UUID().uuidString,
-                    content: "This is long content that goes onto multiple lines. It should be truncated appropriately. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    content: AIChatModel(role: .user, content: "This is long content that goes onto multiple lines. It should be truncated appropriately. Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
                     createdAt: .now,
                     seenByIds: nil
-                ), isCurrentUser: true
+                ), isCurrentUser: true,
+                currentUserBackgroundColor: .green
             )
         }
         .padding()

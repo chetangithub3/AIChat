@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @Environment(LogManager.self) private var logManager
+    @Environment(AppState.self) private var root
     var imageURLString: String = Constants.randomImageURLString
     @State private var showSignInView: Bool = false
     var body: some View {
@@ -23,9 +25,22 @@ struct WelcomeView: View {
             }
             .toolbarVisibility(.hidden, for: .navigationBar)
             .sheet(isPresented: $showSignInView) {
-                CreateAccountView(title: "Sign In", subtitle: "Connnect to an existing account")
-                    .presentationDetents([.medium])
+                CreateAccountView(
+                    title: "Sign In",
+                    subtitle: "Connnect to an existing account",
+                    onDidSignIn: { isNewUser in
+                        handleDidSignIn(isNewUser: isNewUser)
+                    }
+                )
+                .presentationDetents([.medium])
             }
+            .screenAppearAnalytic(name: "WelcomeView")
+        }
+    }
+    private func handleDidSignIn(isNewUser: Bool) {
+        logManager.trackEvent(event: Event.signInSuccess(isNewUser: isNewUser))
+        if !isNewUser {
+            root.updateViewState(showOnboarding: false)
         }
     }
     private var signInButtons: some View {
@@ -45,6 +60,7 @@ struct WelcomeView: View {
 
     private func tapAction() {
         showSignInView = true
+        logManager.trackEvent(event: Event.signInPressed)
     }
 
     private var policyLinks: some View {
@@ -73,6 +89,28 @@ struct WelcomeView: View {
                 .fontWeight(.light)
                 .foregroundStyle(.secondary)
         }
+    }
+    enum Event: LoggableEvent {
+        case signInPressed
+        case signInSuccess(isNewUser: Bool)
+
+        var eventName: String {
+            switch self {
+            case .signInPressed:      return "WelcomeView_Signin_Pressed"
+            case .signInSuccess:     return "WelcomeView_SignIn_Success"
+            }
+        }
+
+        var parameters: [String: Any]? {
+            switch self {
+            case .signInSuccess(let isNewUser):
+                return ["is_new_user": isNewUser]
+            default:
+                return nil
+            }
+        }
+
+        var type: LogType { .analytic }
     }
 }
 

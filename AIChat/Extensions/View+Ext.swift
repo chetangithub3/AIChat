@@ -99,4 +99,28 @@ extension Color {
             opacity: Double(alpha) / 255
         )
     }
+
+    func toHex(includeAlpha: Bool = false) throws -> String {
+        let uiColor = UIColor(self)
+
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        guard uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            throw EncodingError.invalidValue(self, EncodingError.Context(codingPath: [], debugDescription: "Failed to extract RGB components from Color."))
+        }
+
+        let redInt   = Int(red * 255)
+        let greenInt = Int(green * 255)
+        let blueInt  = Int(blue * 255)
+        let alphaInt = Int(alpha * 255)
+
+        if includeAlpha {
+            return String(format: "#%02X%02X%02X%02X", alphaInt, redInt, greenInt, blueInt)
+        } else {
+            return String(format: "#%02X%02X%02X", redInt, greenInt, blueInt)
+        }
+    }
 }

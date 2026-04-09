@@ -16,6 +16,7 @@ struct OnboardingIntroView: View {
             continueButton
         }
         .toolbarVisibility(.hidden, for: .navigationBar)
+        .screenAppearAnalytic(name: "OnboardingIntroView")
     }
 
     private var continueButton: some View {

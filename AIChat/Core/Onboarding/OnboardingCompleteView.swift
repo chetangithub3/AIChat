@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct OnboardingCompleteView: View {
+    @Environment(LogManager.self) private var logManager
     var selectedColor: Color
+    @Environment(UserManager.self) private var userManager
     @Environment(AppState.self) private var root
-    @State var isUpdatingProfileColor: Bool = false
+    @State var isUpdatingProfileSetup: Bool = false
+    @State private var showAlert: AnyAppAlert?
     var body: some View {
         VStack {
             titleAndDescription
@@ -19,6 +22,8 @@ struct OnboardingCompleteView: View {
             finishButton
         }
         .toolbarVisibility(.hidden, for: .navigationBar)
+        .showCustomAlert(alert: $showAlert)
+        .screenAppearAnalytic(name: "OnboardingCompleteView")
     }
     private var titleAndDescription: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -34,7 +39,7 @@ struct OnboardingCompleteView: View {
     }
     private var finishButton: some View {
         ZStack {
-            if isUpdatingProfileColor {
+            if isUpdatingProfileSetup {
                 ProgressView()
                     .scaleEffect(1.3)
             } else {
@@ -42,21 +47,54 @@ struct OnboardingCompleteView: View {
             }
         }
         .anyButton(.pressable, action: onFinishPressed)
-        .disabled(isUpdatingProfileColor)
+        .disabled(isUpdatingProfileSetup)
         .mainButtonStyle()
     }
     private func onFinishPressed() {
+        logManager.trackEvent(event: Event.markOBCompleteForCurrentUserStart)
         Task {
-            isUpdatingProfileColor = true
-                // update backend
-            try await Task.sleep(nanoseconds: 2_000_000_000)
-            root.updateViewState(showOnboarding: false)
-            isUpdatingProfileColor = false
+            isUpdatingProfileSetup = true
+            do {
+                let hexColor = try selectedColor.toHex()
+                try await userManager.markOnboardingCompleteForCurrentUser(profileColorHex: hexColor)
+                root.updateViewState(showOnboarding: false)
+                logManager.trackEvent(event: Event.markOBCompleteForCurrentUserSuccess(hexColor: hexColor))
+            } catch {
+                logManager.trackEvent(event: Event.markOBCompleteForCurrentUserFail(error: error))
+                showAlert = AnyAppAlert(error: error)
+            }
+            isUpdatingProfileSetup = false
+        }
+    }
+    enum Event: LoggableEvent {
+        case markOBCompleteForCurrentUserStart, markOBCompleteForCurrentUserSuccess(hexColor: String), markOBCompleteForCurrentUserFail(error: Error)
+        var eventName: String {
+            switch self {
+                case .markOBCompleteForCurrentUserStart: return "OnboardingComplteView_MarkComplete_Start"
+                case .markOBCompleteForCurrentUserSuccess: return "OnboardingComplteView_MarkComplete_Success"
+                case .markOBCompleteForCurrentUserFail: return "OnboardingComplteView_MarkComplete_Fail"
+            }
+        }
+        var parameters: [String: Any]? {
+            switch self {
+                case .markOBCompleteForCurrentUserSuccess(hexColor: let hexColor):
+                    return ["hex_color": hexColor]
+                case .markOBCompleteForCurrentUserFail(error: let error):
+                    return error.eventParameters
+                default: return nil
+            }
+        }
+        var type: LogType {
+            switch self {
+                case .markOBCompleteForCurrentUserFail: return .severe
+                default: return .analytic
+            }
         }
     }
 }
 
 #Preview {
     OnboardingCompleteView(selectedColor: .orange)
+        .environment(UserManager(services: MockUserServices(user: .mock)))
         .environment(AppState())
 }

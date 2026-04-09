@@ -20,13 +20,13 @@ enum TextValidationError: LocalizedError {
 }
 
 struct TextValidationHelper {
-    static func validateMessage(for text: String) throws {
-        let minimumCharacters: Int = 3
-        guard text.trimmingCharacters(in: .whitespacesAndNewlines).count >= minimumCharacters else {
-            throw TextValidationError.notEnoughCharacters(min: minimumCharacters)
+    static func validateMessage(for text: String, minimumCharacterCount: Int = 3) throws {
+        let minimumCharacterCount: Int = 3
+        guard text.trimmingCharacters(in: .whitespacesAndNewlines).count >= minimumCharacterCount else {
+            throw TextValidationError.notEnoughCharacters(min: minimumCharacterCount)
         }
         let badWords: [String] = ["bitch", "ass"]
-        if !badWords.contains(where: { text.lowercased().contains($0) }) {
+        if badWords.contains(where: { text.lowercased().contains($0) }) {
             throw TextValidationError.hasBadWords
         }
     }
