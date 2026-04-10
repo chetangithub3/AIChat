@@ -20,7 +20,7 @@ struct OnFirstAppearViewModifier: ViewModifier {
 }
 struct OnFirstTaskViewModifier: ViewModifier {
     @State private var didAppear: Bool = false
-    let action: ()async  -> Void
+    let action: () async  -> Void
     func body(content: Content) -> some View {
         content.task {
             guard !didAppear else { return }
