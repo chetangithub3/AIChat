@@ -18,6 +18,24 @@ extension View {
             .clipShape(.buttonBorder)
             .padding()
     }
+    func modalPrimaryButtonStyle() -> some View {
+        self
+            .font(.headline)
+            .tint(.white)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 35, maxHeight: 35, alignment: .center)
+            .background(.accent)
+            .clipShape(.buttonBorder)
+            .padding()
+    }
+    func modalSecondaryButtonStyle() -> some View {
+        self
+            .font(.headline)
+            .tint(.black)
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity, minHeight: 35, maxHeight: 35, alignment: .center)
+            .padding(.horizontal)
+    }
 
     func tappableTextWithAction(_ action: @escaping () -> Void, scale: CGFloat = 1) -> some View {
         self
@@ -44,19 +62,6 @@ extension View {
                         .position(x: geo.size.width / 2, y: geo.size.height / 2)
                 }
             )
-    }
-
-    func removeListRowFormatting() -> some View {
-        self
-            .listRowInsets(
-                EdgeInsets(
-                    top: 0,
-                    leading: 0,
-                    bottom: 0,
-                    trailing: 0
-                )
-            )
-            .listRowBackground(Color.clear)
     }
 }
 

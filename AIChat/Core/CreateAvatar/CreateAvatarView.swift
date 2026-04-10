@@ -54,6 +54,8 @@ struct CreateAvatarView: View {
             HStack {
                 ZStack {
                     Text("Generate Image")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.3)
                         .foregroundStyle(.accent)
                         .underline()
                         .anyButton {
@@ -80,6 +82,7 @@ struct CreateAvatarView: View {
                         }
                     }
                     .clipShape(Circle())
+                    .frame(maxHeight: 300)
             }
             .removeListRowFormatting()
         }
@@ -90,6 +93,8 @@ struct CreateAvatarView: View {
             TextField("Player 1", text: $avatarName)
         } header: {
             Text("Name your avatar*")
+                .lineLimit(1)
+                .minimumScaleFactor(0.3)
         }
     }
     private var attributesSection: some View {
@@ -214,4 +219,5 @@ struct CreateAvatarView: View {
         .environment(AIManager(service: MockAIService()))
         .environment(AuthManager(service: MockAuthService(user: .mock)))
         .environment(AvatarManager(service: MockAvatarService()))
+        .previewEnvironment()
 }

@@ -101,12 +101,15 @@ struct CategoryListView: View {
 #Preview("Has avatars") {
     CategoryListView(path: .constant([]))
         .environment(AvatarManager(service: MockAvatarService()))
+        .previewEnvironment()
 }
 #Preview("No avatars") {
     CategoryListView(path: .constant([]))
         .environment(AvatarManager(service: MockAvatarService(avatars: [])))
+        .previewEnvironment()
 }
 #Preview("Error") {
     CategoryListView(path: .constant([]))
         .environment(AvatarManager(service: MockAvatarService(delay: 4, doesThrow: true)))
+        .previewEnvironment()
 }

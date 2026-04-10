@@ -33,18 +33,6 @@ struct ImageLoaderView: View {
     }
 }
 
-extension View {
-
-    @ViewBuilder
-    func ifSatisfiesCondition(_ condition: Bool, transform: (Self) -> some View) -> some View {
-        if condition {
-            AnyView(transform(self))
-        } else {
-            AnyView(self)
-        }
-    }
-}
-
 #Preview {
     ImageLoaderView()
         .frame(width: 200, height: 300)

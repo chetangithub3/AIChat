@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import SwiftfulUtilities
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(LogManager.self) private var logManager
@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var isAnonymous = true
     @State private var showCreateAccountView: Bool = false
     @State private var showAlert: AnyAppAlert?
+    @State private var showModal: Bool = false
     var body: some View {
         NavigationStack {
             List {
@@ -34,11 +35,37 @@ struct SettingsView: View {
                     .presentationDetents([.medium])
             }
             .showCustomAlert(alert: $showAlert)
+            .showModal(
+                showModal: $showModal,
+                content: {
+                  ratingsModal
+            })
             .onAppear(perform: setAnonymousAccountStatus)
             .screenAppearAnalytic(name: "SettingsView")
         }
     }
-    func setAnonymousAccountStatus() {
+    private var ratingsModal: some View {
+        CustomModalView(
+            title: "Are you enjoying the app",
+            subTitle: "Letting us know will help make the user experience better",
+            primaryButtonTitle: "Yes",
+            primaryButtonAction: {
+                ratingsYesPressed()
+            },
+            secondaryButtonTitle: "No") {
+                ratingsNoPressed()
+            }
+    }
+    private func ratingsYesPressed() {
+        logManager.trackEvent(event: Event.ratingsYesPressed)
+        showModal = false
+        AppStoreRatingsHelper.requestRatingsReview()
+    }
+    private func ratingsNoPressed() {
+        logManager.trackEvent(event: Event.ratingsNoPressed)
+        showModal = false
+    }
+private func setAnonymousAccountStatus() {
         isAnonymous = authManager.auth?.isAnonymous ?? true
     }
     private var accountSection: some View {
@@ -92,6 +119,12 @@ struct SettingsView: View {
     }
     private var applicationSection: some View {
         Section {
+            Text("Rate Us on the Appstore")
+                .foregroundStyle(.accent)
+            .rowFormatting()
+            .anyButton {
+                rateUsOnAppstore()
+            }
             HStack {
                 Text("Version")
                 Spacer()
@@ -110,7 +143,7 @@ struct SettingsView: View {
                 .foregroundStyle(.accent)
             .rowFormatting()
             .anyButton {
-                //
+                contactUsPressed()
             }
         } header: {
             Text("Application")
@@ -121,7 +154,17 @@ struct SettingsView: View {
         }
         .removeListRowFormatting()
     }
-
+    private func rateUsOnAppstore() {
+        logManager.trackEvent(event: Event.ratingsPressed)
+        showModal = true
+    }
+    private func contactUsPressed() {
+        logManager.trackEvent(event: Event.contactUSPressed)
+        let email = "chetan.getsmail@gmail.com"
+        let emailString = "mailto:\(email)"
+        guard let url = URL(string: emailString), UIApplication.shared.canOpenURL(url) else { return }
+        UIApplication.shared.open(url)
+    }
     private func onSignOut() {
         logManager.trackEvent(event: Event.signOutStart)
         Task {
@@ -182,7 +225,7 @@ struct SettingsView: View {
 
         case deleteAccountStart, deleteAccountStartConfirm, deleteAccountSuccess, deleteAccountFail(error: Error)
 
-        case createAccountPressed
+        case createAccountPressed, contactUSPressed, ratingsPressed, ratingsYesPressed, ratingsNoPressed
 
         var eventName: String {
             switch self {
@@ -194,6 +237,10 @@ struct SettingsView: View {
             case .deleteAccountSuccess:         return "SettingsView_DeleteAccount_Success"
             case .deleteAccountFail:            return "SettingsView_DeleteAccount_Fail"
             case .createAccountPressed:         return "SettingsView_CreateAccount_Pressed"
+            case .contactUSPressed:             return "SettingsView_ContactUs_Pressed"
+            case .ratingsPressed:               return "SettingsView_Ratings_Pressed"
+            case .ratingsYesPressed:            return "SettingsView_Ratings_Yes_Pressed"
+            case .ratingsNoPressed:             return "SettingsView_Ratings_No_Pressed"
             }
         }
 
