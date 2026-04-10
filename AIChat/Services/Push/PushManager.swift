@@ -18,7 +18,6 @@ class PushManager {
     func schedulePushNotificationsFortheNextWeek() {
         LocalNotifications.removeAllPendingNotifications()
         LocalNotifications.removeAllDeliveredNotifications()
-        
         Task {
             do {
                 try await scheduleNotification(title: "hey You, ready to chat", subtitle: "open AIChat to begin", triggerDate: Date().addingTimeInterval(26000 * 1))

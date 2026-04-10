@@ -7,21 +7,33 @@
 
 import SwiftUI
 import SwiftfulUtilities
+import SwiftfulUI
 struct AppView: View {
     @Environment(LogManager.self) private var logManager
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
     @State var appState: AppState = AppState()
     var body: some View {
-        AppViewBuilder(
-            showOnboardingView: appState.showOnboardingView,
-            onboardingView: {
-                WelcomeView()
-            },
-            tabbarView: {
-                TabbarView()
-            }
-        )
+        RootView(
+            delegate: RootDelegate(
+                onApplicationWillEnterForeground: { _ in
+                    Task {
+                        await checkUserStatus()
+                    }
+                }
+            )
+        ) {
+            AppViewBuilder(
+                showOnboardingView: appState.showOnboardingView,
+                onboardingView: {
+                    WelcomeView()
+                },
+                tabbarView: {
+                    TabbarView()
+                }
+            )
+        }
+      
         .environment(appState)
         .task {
             try? await Task.sleep(for: .seconds(3))
