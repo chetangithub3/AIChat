@@ -23,6 +23,8 @@ struct WelcomeView: View {
                 policyLinks
                     .padding(.top)
             }
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
             .toolbarVisibility(.hidden, for: .navigationBar)
             .sheet(isPresented: $showSignInView) {
                 CreateAccountView(
@@ -119,4 +121,5 @@ struct WelcomeView: View {
         WelcomeView()
     }
     .environment(AppState())
+    .previewEnvironment()
 }
