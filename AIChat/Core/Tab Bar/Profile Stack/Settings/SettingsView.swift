@@ -203,10 +203,10 @@ private func setAnonymousAccountStatus() {
         Task {
             do {
                 let uid = try authManager.getAuthId()
-                try await authManager.deleteAccount()
-                try await userManager.deleteCurrentUser()
-                try await avatarManager.removeAuthoIdFromAllAvatars(userId: uid)
                 try await chatManager.deleteAllChatsForUser(userId: uid)
+                try await avatarManager.removeAuthoIdFromAllAvatars(userId: uid)
+                try await userManager.deleteCurrentUser()
+                try await authManager.deleteAccount()
                 logManager.trackEvent(event: Event.deleteAccountSuccess)
                 logManager.deleteUserProfile()
                 await dismissScreen()
