@@ -52,9 +52,11 @@ struct SettingsView: View {
             primaryButtonAction: {
                 ratingsYesPressed()
             },
-            secondaryButtonTitle: "No") {
+            secondaryButtonTitle: "No",
+            secondaryButtonAction: {
                 ratingsNoPressed()
             }
+        )
     }
     private func ratingsYesPressed() {
         logManager.trackEvent(event: Event.ratingsYesPressed)

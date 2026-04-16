@@ -126,7 +126,6 @@ struct ExploreView: View {
     }
     private func pushNotifModalAllowPressed() {
         Task {
-            try await pushManager.requestAuthorization()
             await shouldShowNotificationButton()
         }
         showPushNotificationModal = false

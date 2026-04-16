@@ -20,7 +20,7 @@ struct AnyNotificationViewModifier: ViewModifier {
 }
 
 extension View {
-    func onNotificationReceived(notificationName: NSNotification.Name, action: @escaping (Notification) -> Void) {
+    func onNotificationReceived(notificationName: NSNotification.Name, action: @escaping (Notification) -> Void) -> some View {
         modifier(AnyNotificationViewModifier(notificationName: notificationName, onNotificationReceived: action))
     }
 }
