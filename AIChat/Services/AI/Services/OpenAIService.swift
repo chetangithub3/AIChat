@@ -6,24 +6,14 @@
 //
 
 import SwiftUI
-import OpenAI
+import FirebaseFunctions
 
 struct OpenAIService: AIService {
-    var openAI: OpenAI {
-        OpenAI(apiToken: Keys.openAIAPIKey)
-    }
-
     func generateImage(input: String) async throws -> UIImage {
-        let query = ImagesQuery(
-            prompt: input,
-            model: .gpt_image_1,
-            n: 1,
-            size: .auto,
-            user: nil
-        )
-
-        let result = try await openAI.images(query: query)
-        guard let b64Json = result.data.first?.b64Json,
+        let result = try await Functions.functions().httpsCallable("generateOpenAIImage").call([
+            "input": input
+        ])
+        guard let b64Json = result.data as? String,
               let data = Data(base64Encoded: b64Json),
               let image = UIImage(data: data)
         else {
@@ -32,21 +22,25 @@ struct OpenAIService: AIService {
         return image
     }
     func generateText(chats: [AIChatModel]) async throws -> AIChatModel {
-        let messages = chats.compactMap({$0.toOpenAIModel()})
-        let query = ChatQuery(
-            messages: messages,
-            model: .gpt4_1_nano,
-            modalities: [.text],
-            maxCompletionTokens: 50
-        )
-        let result  = try await openAI.chats(query: query)
-        guard let chat = result.choices.first?.message, let _ = chat.content?.description else {
-            throw OpenAIError.textGenerationFailed
+        let messages = chats.compactMap { chat in
+            let role = chat.role.rawValue
+            let content = chat.content
+            return [
+                "role": role,
+                "content": content
+            ]
         }
-        guard let chatModel = AIChatModel(chat: chat) else {
-            throw OpenAIError.textGenerationFailed
-        }
-        return chatModel
+        let response = try await Functions.functions().httpsCallable("generateOpenAIText").call([
+            "messages": messages
+        ])
+        guard let dict = response.data as? [String: Any],
+                let roleString = dict["role"] as? String,
+                let content = dict["content"] as? String else {
+                throw OpenAIError.textGenerationFailed
+              }
+        let res = AIChatModel(role: AIChatRole(rawValue: roleString), content: content)
+        dump(res, name: "sssssss")
+        return res
     }
     enum OpenAIError: LocalizedError {
         case imageGenerationFailed
@@ -62,21 +56,9 @@ struct AIChatModel: Codable {
         case role
         case content
     }
-    init?(chat: ChatResult.Choice.Message) {
-        guard let content = chat.content else { return nil }
-        role = AIChatRole(rawValue: chat.role)
-        self.content = content
-    }
-
     init(role: AIChatRole, content: String) {
         self.role = role
         self.content = content
-    }
-    func toOpenAIModel() -> ChatQuery.ChatCompletionMessageParam? {
-        ChatQuery.ChatCompletionMessageParam(
-            role: role.openAIRole,
-            content: content
-        )
     }
     var eventParameters: [String: Any] {
         let dict: [String: Any?] = [
@@ -96,14 +78,6 @@ enum AIChatRole: String, Codable {
             case "assistant": self = .assistant
             case "tool": self = .tool
             default: self = .system
-        }
-    }
-    var openAIRole: ChatQuery.ChatCompletionMessageParam.Role {
-        switch self {
-            case .system: return .system
-            case .user: return .user
-            case .assistant: return .assistant
-            case .tool: return .tool
         }
     }
 }
