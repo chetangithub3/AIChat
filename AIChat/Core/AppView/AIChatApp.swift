@@ -20,6 +20,7 @@ struct AIChatApp: App {
                 .environment(delegate.dependencies.chatManager)
                 .environment(delegate.dependencies.logManager)
                 .environment(delegate.dependencies.pushManager)
+                .environment(delegate.dependencies.abTestManager)
         }
     }
 }
@@ -66,13 +67,14 @@ enum BuildConfiguration {
 
 @MainActor
 struct Dependencies {
-    var authManager: AuthManager
-    var userManager: UserManager
-    var aiManager: AIManager
-    var avatarManager: AvatarManager
-    var chatManager: ChatManager
-    var logManager: LogManager
-    var pushManager: PushManager
+    let authManager: AuthManager
+    let userManager: UserManager
+    let aiManager: AIManager
+    let avatarManager: AvatarManager
+    let chatManager: ChatManager
+    let logManager: LogManager
+    let pushManager: PushManager
+    let abTestManager: ABTestManager
 
     init(config: BuildConfiguration) {
         switch config {
@@ -88,15 +90,17 @@ struct Dependencies {
                 self.aiManager = AIManager(service: OpenAIService())
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
+                self.abTestManager = ABTestManager(service: MockABTestService(), logManager: logManager)
             case .mock(let isSignedIn):
                 self.logManager = LogManager(services: [
-                    ConsoleLogService(doPrintParameters: false)
+                    ConsoleLogService(doPrintParameters: true)
                 ])
                 self.authManager = AuthManager(service: MockAuthService(user: isSignedIn ? .mock: nil), logManager: logManager)
                 self.userManager = UserManager(services: MockUserServices(user: isSignedIn ? .mock: nil), logManager: logManager)
                 self.aiManager = AIManager(service: MockAIService())
                 self.avatarManager = AvatarManager(service: MockAvatarService(), local: MockLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: MockChatService())
+                self.abTestManager = ABTestManager(service: MockABTestService(), logManager: logManager)
             case .prod:
                 self.logManager = LogManager(services: [
                     FirebaseAnalyticsService(), MixPanelService(token: Keys.mixPanelToken)
@@ -106,6 +110,7 @@ struct Dependencies {
                 self.aiManager = AIManager(service: OpenAIService())
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
+                self.abTestManager = ABTestManager(service: MockABTestService(), logManager: logManager)
         }
         pushManager = PushManager(logManager: logManager)
     }
@@ -114,6 +119,7 @@ struct Dependencies {
 extension View {
     func previewEnvironment(isSignedIn: Bool = true) -> some View {
         self
+            .environment(ABTestManager(service: MockABTestService()))
             .environment(ChatManager(service: MockChatService()))
             .environment(AIManager(service: MockAIService()))
             .environment(AvatarManager(service: MockAvatarService()))

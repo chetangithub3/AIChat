@@ -67,7 +67,7 @@ struct SettingsView: View {
         logManager.trackEvent(event: Event.ratingsNoPressed)
         showModal = false
     }
-private func setAnonymousAccountStatus() {
+    private func setAnonymousAccountStatus() {
         isAnonymous = authManager.auth?.isAnonymous ?? true
     }
     private var accountSection: some View {
