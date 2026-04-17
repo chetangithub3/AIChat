@@ -251,7 +251,7 @@ struct ChatView: View {
     enum ChatViewError: LocalizedError {
         case noChat
     }
-    private func  createNewChat(userId: String) async throws -> ChatModel {
+    private func createNewChat(userId: String) async throws -> ChatModel {
         logManager.trackEvent(event: Event.createChatStart)
         let newChat = ChatModel.new(userId: userId, avatarId: avatarId)
         try await chatManager.createNewChat(chat: newChat)

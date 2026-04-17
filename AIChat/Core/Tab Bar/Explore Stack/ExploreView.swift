@@ -11,6 +11,8 @@ struct ExploreView: View {
     @Environment(LogManager.self) private var logManager
     @Environment(AvatarManager.self) private var avatarManager
     @Environment(PushManager.self) private var pushManager
+    @Environment(AuthManager.self) private var authManager
+    @Environment(ABTestManager.self) private var abTestManager
     @State private var featuredAvatars: [AvatarModel] = []
     @State private var popularAvatars: [AvatarModel] = []
     @State private var categories = CharacterOption.allCases
@@ -20,6 +22,9 @@ struct ExploreView: View {
     @State private var showDevSettings: Bool = false
     @State private var showNotificationButton: Bool = true
     @State private var showPushNotificationModal: Bool = false
+    @State private var showCreateAccountView: Bool = false
+    @State private var showAlert: AnyAppAlert?
+    @State private var isAnonymous = true
     var isDevOrMock: Bool {
         #if DEV || MOCK
         return true
@@ -64,6 +69,10 @@ struct ExploreView: View {
             .sheet(isPresented: $showDevSettings) {
                 Text("Dev settings")
             }
+            .sheet(isPresented: $showCreateAccountView) {
+                CreateAccountView()
+                    .presentationDetents([.medium])
+            }
             .screenAppearAnalytic(name: "ExploreView")
             .navigationDestinationForCoreModules(path: $path)
             .task {
@@ -77,11 +86,18 @@ struct ExploreView: View {
             }
             .onFirstAppear {
                 schedulePushNotifications()
+                showCreateAcountScreenIfNeeded()
             }
             .onOpenURL { url in
                 handleDeepLink(url: url)
             }
         }
+    }
+    private func showCreateAcountScreenIfNeeded() {
+        guard authManager.auth?.isAnonymous == true
+                && abTestManager.activeTests.createAccountTest == true
+        else { return }
+        showCreateAccountView = true
     }
     private func handleDeepLink(url: URL) {
         logManager.trackEvent(event: Event.deepLinkStart(url: url))
@@ -126,7 +142,6 @@ struct ExploreView: View {
     }
     private func pushNotifModalAllowPressed() {
         Task {
-            try await pushManager.requestAuthorization()
             await shouldShowNotificationButton()
         }
         showPushNotificationModal = false
@@ -354,6 +369,13 @@ struct ExploreView: View {
         .previewEnvironment()
 }
 
+#Preview("CreateAccTest") {
+    ExploreView()
+        .environment(AvatarManager(service: MockAvatarService(avatars: [], delay: 3)))
+        .environment(AuthManager(service: MockAuthService(user: .mock(isAnonymous: true))))
+        .environment(ABTestManager(service: MockABTestService(createAccountTest: true)))
+        .previewEnvironment()
+}
 #Preview("Delay") {
     ExploreView()
         .environment(AvatarManager(service: MockAvatarService(delay: 5)))
