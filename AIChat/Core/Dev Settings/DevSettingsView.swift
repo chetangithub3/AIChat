@@ -10,13 +10,16 @@ import SwiftUI
 struct DevSettingsView: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
+    @Environment(ABTestManager.self) private var abTestManager
     @Environment(\.dismiss) private var dismiss
     @Binding var showSettings: Bool
+    @State var createAccountTest: Bool = false
     var body: some View {
         NavigationStack {
             List {
                 authSection
                 userSection
+                abTestSection
                 miscSection
             }
             .navigationTitle("Dev Settings")
@@ -24,6 +27,23 @@ struct DevSettingsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                    backbuttonView
                 }
+            }
+            .onFirstAppear {
+                loadAbTests()
+            }
+        }
+    }
+    private func loadAbTests() {
+        createAccountTest = abTestManager.activeTests.createAccountTest
+    }
+    private func handleCreateAccountChange(oldValue: Bool, newValue: Bool) {
+        if newValue != abTestManager.activeTests.createAccountTest {
+            do {
+                var tests = abTestManager.activeTests
+                tests.update(createAccountTest: createAccountTest)
+                try abTestManager.override(updatedTests: tests)
+            } catch {
+                createAccountTest = abTestManager.activeTests.createAccountTest
             }
         }
     }
@@ -35,6 +55,14 @@ struct DevSettingsView: View {
             .anyButton {
                 onBackButtonPressed()
             }
+    }
+    private var abTestSection: some View {
+        Section {
+            Toggle("Create account test", isOn: $createAccountTest)
+                .onChange(of: createAccountTest, handleCreateAccountChange)
+        } header: {
+            Text("ABTest Info")
+        }
     }
     private var authSection: some View {
         Section {

@@ -90,7 +90,7 @@ struct Dependencies {
                 self.aiManager = AIManager(service: OpenAIService())
                 self.avatarManager = AvatarManager(service: FirebaseAvatarService(), local: SwiftDataLocalAvatarPersistence())
                 self.chatManager = ChatManager(service: FirebaseChatService())
-                self.abTestManager = ABTestManager(service: MockABTestService(), logManager: logManager)
+                self.abTestManager = ABTestManager(service: LocalAbTestService(), logManager: logManager)
             case .mock(let isSignedIn):
                 self.logManager = LogManager(services: [
                     ConsoleLogService(doPrintParameters: true)

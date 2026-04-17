@@ -67,7 +67,7 @@ struct ExploreView: View {
                 }
             })
             .sheet(isPresented: $showDevSettings) {
-                Text("Dev settings")
+                DevSettingsView(showSettings: $showDevSettings)
             }
             .sheet(isPresented: $showCreateAccountView) {
                 CreateAccountView()
