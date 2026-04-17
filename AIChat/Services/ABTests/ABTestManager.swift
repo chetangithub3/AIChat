@@ -7,21 +7,29 @@
 import SwiftUI
 struct ActiveABTests: Codable {
     private(set) var createAccountTest: Bool
-    init(createAccountTest: Bool) {
+    private(set) var onboardingCommunityTest: Bool
+
+    init(createAccountTest: Bool, onboardingCommunityTest: Bool) {
         self.createAccountTest = createAccountTest
+        self.onboardingCommunityTest = onboardingCommunityTest
     }
 
     enum CodingKeys: String, CodingKey {
-        case createAccountTest = "_202411_CreateAccTest"
+        case createAccountTest = "_202604_CreateAccTest"
+        case onboardingCommunityTest = "_202604_OnboardingCommTest"
     }
     var eventParameters: [String: Any] {
         let dict: [String: Any?] = [
-            "test\(CodingKeys.createAccountTest.rawValue)": createAccountTest
+            "test\(CodingKeys.createAccountTest.rawValue)": createAccountTest,
+            "test\(CodingKeys.onboardingCommunityTest.rawValue)": onboardingCommunityTest
         ]
         return dict.compactMapValues { $0 }
     }
     mutating func update(createAccountTest newValue: Bool) {
         self.createAccountTest = newValue
+    }
+    mutating func update(onboardingCommunityTest newValue: Bool) {
+        self.onboardingCommunityTest = newValue
     }
 }
 protocol ABTestService {
@@ -31,8 +39,8 @@ protocol ABTestService {
 
 class MockABTestService: ABTestService {
     var activeTests: ActiveABTests
-    init(createAccountTest: Bool? = nil) {
-        self.activeTests = ActiveABTests(createAccountTest: createAccountTest ?? false)
+    init(createAccountTest: Bool? = nil, onboardingCommunityTest: Bool? = nil) {
+        self.activeTests = ActiveABTests(createAccountTest: createAccountTest ?? false, onboardingCommunityTest: onboardingCommunityTest ?? false)
     }
     func saveUpdatedConfig(updatedTests: ActiveABTests) throws {
         activeTests = updatedTests
@@ -40,12 +48,13 @@ class MockABTestService: ABTestService {
 }
 class LocalAbTestService: ABTestService {
     @UserDefault(key: ActiveABTests.CodingKeys.createAccountTest.rawValue, startingvalue: .random()) private var createAccountTest: Bool
-
+    @UserDefault(key: ActiveABTests.CodingKeys.onboardingCommunityTest.rawValue, startingvalue: .random()) private var onboardingCommunityTest: Bool
     var activeTests: ActiveABTests {
-        ActiveABTests(createAccountTest: createAccountTest)
+        ActiveABTests(createAccountTest: createAccountTest, onboardingCommunityTest: onboardingCommunityTest)
     }
     func saveUpdatedConfig(updatedTests: ActiveABTests) throws {
         createAccountTest = updatedTests.createAccountTest
+        onboardingCommunityTest = updatedTests.onboardingCommunityTest
     }
 }
 

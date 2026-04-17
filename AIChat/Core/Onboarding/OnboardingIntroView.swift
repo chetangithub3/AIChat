@@ -2,12 +2,13 @@
 //  OnboardingIntroView.swift
 //  AIChat
 //
-//  Created by Chetan Dhowlaghar on 8/9/25.
+//  Created by Chetan Dhowlaghar on 4/17/26.
 //
 
 import SwiftUI
 
 struct OnboardingIntroView: View {
+    @Environment(ABTestManager.self) private var abTestManager
     var body: some View {
         VStack {
             introSection
@@ -21,7 +22,11 @@ struct OnboardingIntroView: View {
 
     private var continueButton: some View {
         NavigationLink {
-            OnboardingColorPickerView()
+            if abTestManager.activeTests.onboardingCommunityTest {
+                OnboardingCommunityView()
+            } else {
+                OnboardingColorPickerView()
+            }
         } label: {
             Text("Continue")
                 .mainButtonStyle()
@@ -46,7 +51,12 @@ struct OnboardingIntroView: View {
         .font(.title2)
     }
 }
-
-#Preview {
+#Preview("Original flow") {
     OnboardingIntroView()
+        .previewEnvironment()
+}
+#Preview("Onboarding community test") {
+    OnboardingIntroView()
+        .environment(ABTestManager(service: MockABTestService(onboardingCommunityTest: true)))
+        .previewEnvironment()
 }

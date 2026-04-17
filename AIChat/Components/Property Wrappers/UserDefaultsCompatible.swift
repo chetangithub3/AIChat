@@ -31,7 +31,6 @@ struct UserDefault<Value: UserDefaultsCompatible> {
     }
     private let key: String
     private let startingvalue: Value
-    
     init(key: String, startingvalue: Value) {
         self.key = key
         self.startingvalue = startingvalue
