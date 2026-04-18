@@ -45,8 +45,13 @@ struct ExploreView: View {
                     }
                 } else {
                     Group {
+                        if abTestManager.activeTests.categoryRowTest == .top {
+                            categorySection
+                        }
                         featuredSection
-                        categorySection
+                        if abTestManager.activeTests.categoryRowTest == .original {
+                            categorySection
+                        }
                     }
                     .listRowSeparator(.hidden)
                     popularSection
@@ -357,7 +362,7 @@ struct ExploreView: View {
     }
 }
 
-#Preview("Happy") {
+#Preview("Has Data") {
     ExploreView()
         .environment(AvatarManager(service: MockAvatarService()))
         .previewEnvironment()
@@ -379,5 +384,21 @@ struct ExploreView: View {
 #Preview("Delay") {
     ExploreView()
         .environment(AvatarManager(service: MockAvatarService(delay: 5)))
+        .previewEnvironment()
+}
+
+#Preview("CategoryRowTes: Original") {
+    ExploreView()
+        .environment(ABTestManager(service: MockABTestService(categoryRowTest: .default)))
+        .previewEnvironment()
+}
+#Preview("CategoryRowTes: top") {
+    ExploreView()
+        .environment(ABTestManager(service: MockABTestService(categoryRowTest: .top)))
+        .previewEnvironment()
+}
+#Preview("CategoryRowTes: hidden") {
+    ExploreView()
+        .environment(ABTestManager(service: MockABTestService(categoryRowTest: .hidden)))
         .previewEnvironment()
 }

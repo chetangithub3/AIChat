@@ -15,6 +15,7 @@ struct DevSettingsView: View {
     @Binding var showSettings: Bool
     @State var createAccountTest: Bool = false
     @State var onboardingCommunityTest: Bool = false
+    @State private var categoryRowTest: CategoryRowTestOption = .original
     var body: some View {
         NavigationStack {
             List {
@@ -37,6 +38,7 @@ struct DevSettingsView: View {
     private func loadAbTests() {
         createAccountTest = abTestManager.activeTests.createAccountTest
         onboardingCommunityTest = abTestManager.activeTests.onboardingCommunityTest
+        categoryRowTest = abTestManager.activeTests.categoryRowTest
     }
     private func handleCreateAccountChange(oldValue: Bool, newValue: Bool) {
         updateTest(
@@ -54,11 +56,18 @@ struct DevSettingsView: View {
                 tests.update(onboardingCommunityTest: newValue)
             }
     }
-    
-    private func updateTest(
-        property: inout Bool,
-        newValue: Bool,
-        savedValue: Bool,
+    private func handleCategoryRowTestChange(oldValue: CategoryRowTestOption, newValue: CategoryRowTestOption) {
+        updateTest(
+            property: &categoryRowTest,
+            newValue: newValue,
+            savedValue: abTestManager.activeTests.categoryRowTest) { tests in
+                tests.update(categoryRowTest: newValue)
+            }
+    }
+    private func updateTest<T: Equatable>(
+        property: inout T,
+        newValue: T,
+        savedValue: T,
         updateAction: (inout ActiveABTests) -> Void
     ) {
         if newValue != savedValue {
@@ -86,6 +95,13 @@ struct DevSettingsView: View {
                 .onChange(of: createAccountTest, handleCreateAccountChange)
             Toggle("Create account test", isOn: $onboardingCommunityTest)
                 .onChange(of: onboardingCommunityTest, handleOnboardingCommunityChange)
+            Picker("Category Row Test", selection: $categoryRowTest) {
+                ForEach(CategoryRowTestOption.allCases, id: \.self) { option in
+                    Text(option.rawValue)
+                        .id(option)
+                }
+            }
+            .onChange(of: categoryRowTest, handleCategoryRowTestChange)
         } header: {
             Text("ABTest Info")
         }
