@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		610C3E0E2F891869005D9715 /* SwiftfulUI in Frameworks */ = {isa = PBXBuildFile; productRef = 610C3E0D2F891869005D9715 /* SwiftfulUI */; };
 		610C41272F8FFBF9005D9715 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 610C41262F8FFBF9005D9715 /* FirebaseFunctions */; };
+		610C43E12F938A3A005D9715 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 610C43E02F938A3A005D9715 /* FirebaseRemoteConfig */; };
 		610F5CFD2F81379500960E3F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 610F5CFC2F81379500960E3F /* FirebaseAnalytics */; };
 		613BB31A2F83676600C4FD30 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 613BB3192F83676600C4FD30 /* Mixpanel */; };
 		613BB31C2F83A4E000C4FD30 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 613BB31B2F83A4E000C4FD30 /* FirebaseCrashlytics */; };
@@ -90,6 +91,7 @@
 				613BB31A2F83676600C4FD30 /* Mixpanel in Frameworks */,
 				610C41272F8FFBF9005D9715 /* FirebaseFunctions in Frameworks */,
 				61A691CC2F6EEE0200215CAB /* FirebaseFirestore in Frameworks */,
+				610C43E12F938A3A005D9715 /* FirebaseRemoteConfig in Frameworks */,
 				617271C82ED925AC00EF5FF0 /* SwiftfulUtilities in Frameworks */,
 				610F5CFD2F81379500960E3F /* FirebaseAnalytics in Frameworks */,
 			);
@@ -174,6 +176,7 @@
 				613BB31B2F83A4E000C4FD30 /* FirebaseCrashlytics */,
 				610C3E0D2F891869005D9715 /* SwiftfulUI */,
 				610C41262F8FFBF9005D9715 /* FirebaseFunctions */,
+				610C43E02F938A3A005D9715 /* FirebaseRemoteConfig */,
 			);
 			productName = AIChat;
 			productReference = 61AA5E0B2E41AF0100BE26CE /* AIChat.app */;
@@ -924,6 +927,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		610C43E02F938A3A005D9715 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61C40F4F2F6AAEA800A5E18B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
 		};
 		610F5CFC2F81379500960E3F /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
