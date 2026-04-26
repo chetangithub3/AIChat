@@ -6,48 +6,33 @@
 //
 import SwiftUI
 
-struct ProfileView: View {
-    @Environment(LogManager.self) private var logManager
-    @Environment(AuthManager.self) private var authManager
-    @Environment(UserManager.self) private var userManager
-    @Environment(AvatarManager.self) private var avatarManager
-    @State var showSettingsView: Bool = false
-    @State var showCreateAvatarView: Bool = false
-    @State var myAvatars: [AvatarModel] = []
-    @State var userProfile: UserModel?
-    @State var isLoading = true
-    @State private var path: [NavigationPathOption] = []
-    @State private var showAlert: AnyAppAlert?
-    var body: some View {
-        NavigationStack(path: $path) {
-            List {
-                myInfoSection
-                    .padding(20)
-                myAvatarsSection
-            }
-                .navigationTitle("Profile")
-                .navigationDestinationForCoreModules(path: $path)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        settingsButton
-                    }
-                }
-        }
-        .sheet(isPresented: $showSettingsView, content: {
-            SettingsView()
-        })
-        .fullScreenCover(isPresented: $showCreateAvatarView, onDismiss: {
-            Task {
-                await loadAvatars()
-            }
-        }, content: {
-            CreateAvatarView()
-        })
-        .task {
-            await loadAvatars()
-        }
-        .showCustomAlert(alert: $showAlert)
-        .screenAppearAnalytic(name: "ProfileView")
+@Observable
+@MainActor
+class ProfileViewModel {
+    private let authManager: AuthManager
+    private let userManager: UserManager
+    private let avatarManager: AvatarManager
+    private let logManager: LogManager
+
+    private(set) var myAvatars: [AvatarModel] = []
+    private(set) var userProfile: UserModel?
+    private(set) var isLoading = true
+
+    var showSettingsView: Bool = false
+    var showCreateAvatarView: Bool = false
+    var path: [NavigationPathOption] = []
+    var showAlert: AnyAppAlert?
+
+    init(
+        authManager: AuthManager,
+        userManager: UserManager,
+        avatarManager: AvatarManager,
+        logManager: LogManager
+    ) {
+        self.authManager = authManager
+        self.userManager = userManager
+        self.avatarManager = avatarManager
+        self.logManager = logManager
     }
     enum Event: LoggableEvent {
         case loadAvatarsStart
@@ -108,7 +93,7 @@ struct ProfileView: View {
             }
         }
     }
-    private func loadAvatars() async {
+    func loadAvatars() async {
         logManager.trackEvent(event: Event.loadAvatarsStart)
         self.userProfile = userManager.currentUser
         isLoading = true
@@ -121,58 +106,11 @@ struct ProfileView: View {
         }
         isLoading = false
     }
-    @ViewBuilder
-    private var myAvatarsSection: some View {
-        Section {
-            if myAvatars.isEmpty {
-                Group {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Text("Click + to create an avatar")
-                    }
-                }
-                .padding(.vertical, 50)
-                .frame(maxWidth: .infinity)
-                .foregroundStyle(.secondary)
-                .removeListRowFormatting()
-            } else {
-                ForEach(myAvatars, id: \.self) { avatar in
-                    CustomListCellView(imageURL: avatar.profileImageName, title: avatar.name)
-                        .anyButton(.highlight) {
-                            onAvatarPressed(avatar: avatar)
-                        }
-                }
-                .onDelete { index in
-                    onDelete(at: index)
-                }
-            }
-        } header: {
-            HStack {
-                Text("My avatars")
-                Spacer()
-                Image(systemName: "plus.circle.fill")
-                    .scaleEffect(1.2)
-                    .foregroundStyle(.accent)
-                    .anyButton(action: onNewAvatarButtonPressed)
-            }
-        }
+    func onAvatarPressed(avatar: AvatarModel) {
+        logManager.trackEvent(event: Event.avatarPressed(avatar: avatar))
+        path.append(.chat(avatarId: avatar.id, chat: nil))
     }
-    private var myInfoSection: some View {
-        Section {
-            Circle()
-                .frame(width: 100, height: 100)
-                .foregroundStyle(userProfile?.colorCalculated ?? .accent)
-                .frame(maxWidth: .infinity)
-        }
-        .removeListRowFormatting()
-    }
-    private var settingsButton: some View {
-        Image(systemName: "gear")
-            .font(.title)
-            .anyButton(action: onSettingsButtonPressed)
-    }
-    private func onDelete(at offsets: IndexSet) {
+    func onDelete(at offsets: IndexSet) {
         guard let index = offsets.first else { return }
         let avatar = myAvatars[index]
         logManager.trackEvent(event: Event.deleteAvatarStart(avatar: avatar))
@@ -187,20 +125,110 @@ struct ProfileView: View {
             }
         }
     }
-    private func onSettingsButtonPressed() {
+    func onSettingsButtonPressed() {
         logManager.trackEvent(event: Event.settingsPressed)
         showSettingsView.toggle()
     }
-    private func onNewAvatarButtonPressed() {
+    func onNewAvatarButtonPressed() {
         logManager.trackEvent(event: Event.newAvatarPressed)
         showCreateAvatarView.toggle()
     }
-    private func onAvatarPressed(avatar: AvatarModel) {
-        logManager.trackEvent(event: Event.avatarPressed(avatar: avatar))
-        path.append(.chat(avatarId: avatar.id, chat: nil))
+}
+
+struct ProfileView: View {
+
+    @State var viewModel: ProfileViewModel
+    var body: some View {
+        NavigationStack(path: $viewModel.path) {
+            List {
+                myInfoSection
+                    .padding(20)
+                myAvatarsSection
+            }
+                .navigationTitle("Profile")
+                .navigationDestinationForCoreModules(path: $viewModel.path)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        settingsButton
+                    }
+                }
+        }
+        .sheet(isPresented: $viewModel.showSettingsView, content: {
+            SettingsView()
+        })
+        .fullScreenCover(isPresented: $viewModel.showCreateAvatarView, onDismiss: {
+            Task {
+                await viewModel.loadAvatars()
+            }
+        }, content: {
+            CreateAvatarView()
+        })
+        .task {
+            await viewModel.loadAvatars()
+        }
+        .showCustomAlert(alert: $viewModel.showAlert)
+        .screenAppearAnalytic(name: "ProfileView")
+    }
+
+    @ViewBuilder
+    private var myAvatarsSection: some View {
+        Section {
+            if viewModel.myAvatars.isEmpty {
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView()
+                    } else {
+                        Text("Click + to create an avatar")
+                    }
+                }
+                .padding(.vertical, 50)
+                .frame(maxWidth: .infinity)
+                .foregroundStyle(.secondary)
+                .removeListRowFormatting()
+            } else {
+                ForEach(viewModel.myAvatars, id: \.self) { avatar in
+                    CustomListCellView(imageURL: avatar.profileImageName, title: avatar.name)
+                        .anyButton(.highlight) {
+                            viewModel.onAvatarPressed(avatar: avatar)
+                        }
+                }
+                .onDelete { index in
+                    viewModel.onDelete(at: index)
+                }
+            }
+        } header: {
+            HStack {
+                Text("My avatars")
+                Spacer()
+                Image(systemName: "plus.circle.fill")
+                    .scaleEffect(1.2)
+                    .foregroundStyle(.accent)
+                    .anyButton(action: viewModel.onNewAvatarButtonPressed)
+            }
+        }
+    }
+    private var myInfoSection: some View {
+        Section {
+            Circle()
+                .frame(width: 100, height: 100)
+                .foregroundStyle(viewModel.userProfile?.colorCalculated ?? .accent)
+                .frame(maxWidth: .infinity)
+        }
+        .removeListRowFormatting()
+    }
+    private var settingsButton: some View {
+        Image(systemName: "gear")
+            .font(.title)
+            .anyButton(action: viewModel.onSettingsButtonPressed)
     }
 }
 #Preview {
-    ProfileView(userProfile: .mock)
-        .previewEnvironment()
+    ProfileView(
+        viewModel: ProfileViewModel(
+            authManager: DevPreview.shared.authManager,
+            userManager: DevPreview.shared.userManager,
+            avatarManager: DevPreview.shared.avatarManager,
+            logManager: DevPreview.shared.logManager
+        )
+    )
 }
