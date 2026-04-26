@@ -29,7 +29,8 @@ struct TabbarView: View {
                     authManager: authManager,
                     userManager: userManager,
                     avatarManager: avatarManager,
-                    logManager: logManager
+                    logManager: logManager,
+                    aiManager: aiManager
                 )
             )
                 .tabItem {
