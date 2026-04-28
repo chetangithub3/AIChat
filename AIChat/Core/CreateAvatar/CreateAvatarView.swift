@@ -25,16 +25,11 @@ class CreateAvatarViewModel {
     var characterLocation: CharacterLocation = .default
     var showAlert: AnyAppAlert?
 
-    init(
-        authManager: AuthManager,
-        aiManager: AIManager,
-        avatarManager: AvatarManager,
-        logManager: LogManager
-    ) {
-        self.authManager = authManager
-        self.aiManager = aiManager
-        self.avatarManager = avatarManager
-        self.logManager = logManager
+    init(container: DependencyContainer) {
+        self.authManager = container.resolve(AuthManager.self)
+        self.aiManager = container.resolve(AIManager.self)
+        self.avatarManager = container.resolve(AvatarManager.self)
+        self.logManager = container.resolve(LogManager.self)
     }
     enum Event: LoggableEvent {
         case backButtonPressed
@@ -54,7 +49,7 @@ class CreateAvatarViewModel {
         var parameters: [String: Any]? {
             switch self {
                 case .generateImageStart(prompt: let prompt):
-                    return [ "prompt": prompt]
+                    return ["prompt": prompt]
                 case .saveAvatarSuccess(avatar: let avatar):
                     return avatar.eventParameters
                 case .saveAvatarFail(error: let error), .generateImageFail(error: let error):
@@ -240,10 +235,7 @@ struct CreateAvatarView: View {
 #Preview {
     CreateAvatarView(
         viewModel: CreateAvatarViewModel(
-            authManager: DevPreview.shared.authManager,
-            aiManager: DevPreview.shared.aiManager,
-            avatarManager: DevPreview.shared.avatarManager,
-            logManager: DevPreview.shared.logManager
+            container: DevPreview.shared.container
         )
     )
     .previewEnvironment()

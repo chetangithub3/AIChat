@@ -14,6 +14,7 @@ struct TabbarView: View {
     @Environment(AvatarManager.self) private var avatarManager
     @Environment(AIManager.self) private var aiManager
     @Environment(LogManager.self) private var logManager
+    @Environment(DependencyContainer.self) private var container
     var body: some View {
         TabView {
             ExploreView()
@@ -24,15 +25,7 @@ struct TabbarView: View {
                 .tabItem {
                     Label("Chats", systemImage: "bubble.left.and.bubble.right.fill")
                 }
-            ProfileView(
-                viewModel: ProfileViewModel(
-                    authManager: authManager,
-                    userManager: userManager,
-                    avatarManager: avatarManager,
-                    logManager: logManager,
-                    aiManager: aiManager
-                )
-            )
+            ProfileView(viewModel: ProfileViewModel(container: container))
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }

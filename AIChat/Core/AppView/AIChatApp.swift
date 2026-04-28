@@ -13,6 +13,7 @@ struct AIChatApp: App {
     var body: some Scene {
         WindowGroup {
            AppView()
+                .environment(delegate.dependencies.container)
                 .environment(delegate.dependencies.aiManager)
                 .environment(delegate.dependencies.avatarManager)
                 .environment(delegate.dependencies.userManager)
@@ -67,6 +68,7 @@ enum BuildConfiguration {
 
 @MainActor
 struct Dependencies {
+    let container: DependencyContainer
     let authManager: AuthManager
     let userManager: UserManager
     let aiManager: AIManager
@@ -113,6 +115,17 @@ struct Dependencies {
                 self.abTestManager = ABTestManager(service: FirebaseABTestService(), logManager: logManager)
         }
         pushManager = PushManager(logManager: logManager)
+        let container = DependencyContainer()
+        container.register(AuthManager.self, instance: authManager)
+        container.register(UserManager.self, instance: userManager)
+        container.register(AIManager.self, instance: aiManager)
+        container.register(AvatarManager.self, instance: avatarManager)
+        container.register(LogManager.self, instance: logManager)
+        container.register(PushManager.self, instance: pushManager)
+        container.register(ABTestManager.self, instance: abTestManager)
+        container.register(AuthManager.self, instance: authManager)
+        container.register(AuthManager.self, instance: authManager)
+        self.container = container
     }
 }
 
@@ -135,6 +148,7 @@ extension View {
 class DevPreview {
     static let shared = DevPreview()
 
+    let container: DependencyContainer
     let authManager: AuthManager
     let userManager: UserManager
     let aiManager: AIManager
@@ -153,5 +167,37 @@ class DevPreview {
         self.logManager = LogManager(services: [])
         self.pushManager = PushManager()
         self.abTestManager = ABTestManager(service: MockABTestService())
+        let container = DependencyContainer()
+        container.register(AuthManager.self, instance: authManager)
+        container.register(UserManager.self, instance: userManager)
+        container.register(AIManager.self, instance: aiManager)
+        container.register(AvatarManager.self, instance: avatarManager)
+        container.register(LogManager.self, instance: logManager)
+        container.register(PushManager.self, instance: pushManager)
+        container.register(ABTestManager.self, instance: abTestManager)
+        container.register(AuthManager.self, instance: authManager)
+        container.register(AuthManager.self, instance: authManager)
+        self.container = container
+    }
+}
+
+@Observable
+@MainActor
+final class DependencyContainer {
+    private var services: [String: Any] = [:]
+
+    init() {}
+
+    func register<T>(_ type: T.Type, instance: T) {
+        let key = String(describing: type)
+        services[key] = instance
+    }
+
+    func resolve<T>(_ type: T.Type) -> T {
+        let key = String(describing: type)
+        guard let service = services[key] as? T else {
+            fatalError("No service registered for \(key)")
+        }
+        return service
     }
 }
