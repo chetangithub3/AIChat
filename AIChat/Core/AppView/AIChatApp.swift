@@ -148,7 +148,19 @@ extension View {
 class DevPreview {
     static let shared = DevPreview()
 
-    let container: DependencyContainer
+    var container: DependencyContainer {
+        let container = DependencyContainer()
+        container.register(AuthManager.self, instance: authManager)
+        container.register(UserManager.self, instance: userManager)
+        container.register(AIManager.self, instance: aiManager)
+        container.register(AvatarManager.self, instance: avatarManager)
+        container.register(LogManager.self, instance: logManager)
+        container.register(PushManager.self, instance: pushManager)
+        container.register(ABTestManager.self, instance: abTestManager)
+        container.register(AuthManager.self, instance: authManager)
+        container.register(AuthManager.self, instance: authManager)
+        return container
+    }
     let authManager: AuthManager
     let userManager: UserManager
     let aiManager: AIManager
@@ -167,17 +179,6 @@ class DevPreview {
         self.logManager = LogManager(services: [])
         self.pushManager = PushManager()
         self.abTestManager = ABTestManager(service: MockABTestService())
-        let container = DependencyContainer()
-        container.register(AuthManager.self, instance: authManager)
-        container.register(UserManager.self, instance: userManager)
-        container.register(AIManager.self, instance: aiManager)
-        container.register(AvatarManager.self, instance: avatarManager)
-        container.register(LogManager.self, instance: logManager)
-        container.register(PushManager.self, instance: pushManager)
-        container.register(ABTestManager.self, instance: abTestManager)
-        container.register(AuthManager.self, instance: authManager)
-        container.register(AuthManager.self, instance: authManager)
-        self.container = container
     }
 }
 

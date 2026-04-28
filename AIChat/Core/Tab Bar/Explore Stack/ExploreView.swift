@@ -6,105 +6,42 @@
 //
 
 import SwiftUI
+@Observable
+@MainActor
+class ExploreViewModel {
+    let authManager: AuthManager
+    let pushManager: PushManager
+    let avatarManager: AvatarManager
+    let logManager: LogManager
+    let abTestManager: ABTestManager
 
-struct ExploreView: View {
-    @Environment(LogManager.self) private var logManager
-    @Environment(AvatarManager.self) private var avatarManager
-    @Environment(PushManager.self) private var pushManager
-    @Environment(AuthManager.self) private var authManager
-    @Environment(ABTestManager.self) private var abTestManager
-    @State private var featuredAvatars: [AvatarModel] = []
-    @State private var popularAvatars: [AvatarModel] = []
-    @State private var categories = CharacterOption.allCases
-    @State private var path: [NavigationPathOption] = []
-    @State private var isLoadingFeatured: Bool = false
-    @State private var isLoadingPopular: Bool = false
-    @State private var showDevSettings: Bool = false
-    @State private var showNotificationButton: Bool = true
-    @State private var showPushNotificationModal: Bool = false
-    @State private var showCreateAccountView: Bool = false
-    @State private var showAlert: AnyAppAlert?
-    @State private var isAnonymous = true
-    var isDevOrMock: Bool {
-        #if DEV || MOCK
-        return true
-        #else
-        return false
-        #endif
+    var featuredAvatars: [AvatarModel] = []
+    var popularAvatars: [AvatarModel] = []
+    var categories = CharacterOption.allCases
+    var path: [NavigationPathOption] = []
+    var isLoadingFeatured: Bool = false
+    var isLoadingPopular: Bool = false
+    var showDevSettings: Bool = false
+    var showNotificationButton: Bool = true
+    var showPushNotificationModal: Bool = false
+    var showCreateAccountView: Bool = false
+    var showAlert: AnyAppAlert?
+    var isAnonymous = true
+    init(container: DependencyContainer) {
+        self.authManager = container.resolve(AuthManager.self)
+        self.pushManager = container.resolve(PushManager.self)
+        self.avatarManager = container.resolve(AvatarManager.self)
+        self.logManager = container.resolve(LogManager.self)
+        self.abTestManager = container.resolve(ABTestManager.self)
     }
-    var body: some View {
-        NavigationStack(path: $path) {
-            List {
-                if featuredAvatars.isEmpty && popularAvatars.isEmpty {
-                    ZStack {
-                        if isLoadingFeatured || isLoadingPopular {
-                            loadingIndicator
-                        } else {
-                            errorMessageView
-                        }
-                    }
-                } else {
-                    Group {
-                        if abTestManager.activeTests.categoryRowTest == .top {
-                            categorySection
-                        }
-                        featuredSection
-                        if abTestManager.activeTests.categoryRowTest == .original {
-                            categorySection
-                        }
-                    }
-                    .listRowSeparator(.hidden)
-                    popularSection
-                }
-            }
-            .listStyle(.grouped)
-            .navigationTitle("Explore")
-            .toolbar(content: {
-                ToolbarItem(placement: .topBarLeading) {
-                    if isDevOrMock {
-                        devSettingsButton
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if showNotificationButton {
-                        notificationButton
-                    }
-                }
-            })
-            .sheet(isPresented: $showDevSettings) {
-                DevSettingsView(showSettings: $showDevSettings)
-            }
-            .sheet(isPresented: $showCreateAccountView) {
-                CreateAccountView()
-                    .presentationDetents([.medium])
-            }
-            .screenAppearAnalytic(name: "ExploreView")
-            .navigationDestinationForCoreModules(path: $path)
-            .task {
-                await loadFeaturedAvatars()
-            }
-            .task {
-                await loadPopularAvatars()
-            }
-            .task {
-                await shouldShowNotificationButton()
-            }
-            .onFirstAppear {
-                schedulePushNotifications()
-                showCreateAcountScreenIfNeeded()
-            }
-            .onOpenURL { url in
-                handleDeepLink(url: url)
-            }
-        }
-    }
-    private func showCreateAcountScreenIfNeeded() {
+
+    func showCreateAcountScreenIfNeeded() {
         guard authManager.auth?.isAnonymous == true
                 && abTestManager.activeTests.createAccountTest == true
         else { return }
         showCreateAccountView = true
     }
-    private func handleDeepLink(url: URL) {
+    func handleDeepLink(url: URL) {
         logManager.trackEvent(event: Event.deepLinkStart(url: url))
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
                 let queryItems = components.queryItems else {
@@ -125,90 +62,49 @@ struct ExploreView: View {
         }
         logManager.trackEvent(event: Event.deeplinkUnknown(error: URLError(.unknown)))
     }
-    private func schedulePushNotifications() {
+    func schedulePushNotifications() {
         pushManager.schedulePushNotificationsFortheNextWeek()
     }
-    private var pushNotificationModal: some View {
-        CustomModalView(
-            title: "Enable Notifications",
-            subTitle: "Stay updated with important alerts and reminders.",
-            primaryButtonTitle: "Allow",
-            primaryButtonAction: {
-                pushNotifModalAllowPressed()
-            },
-            secondaryButtonTitle: "Not Now",
-            secondaryButtonAction: {
-                pushNotifModalAllowPressed()
-            }
-        )
+    func shouldShowNotificationButton() async {
+        showNotificationButton = await pushManager.canRequestAuthorization()
     }
-    private func shouldShowNotificationButton() async {
-         showNotificationButton = await pushManager.canRequestAuthorization()
-    }
-    private func pushNotifModalAllowPressed() {
+    func pushNotifModalAllowPressed() {
         Task {
             await shouldShowNotificationButton()
         }
         showPushNotificationModal = false
     }
-    private func pushNotifModalRefusePressed() {
+    func pushNotifModalRefusePressed() {
         showPushNotificationModal = false
     }
-    private func onNotificationButtonPressed() {
+    func onNotificationButtonPressed() {
         showPushNotificationModal = true
     }
-    private var notificationButton: some View {
-        Image(systemName: "bell.fill")
-            .font(.headline)
-            .padding(4)
-            .tappableText()
-            .foregroundStyle(.accent)
-            .anyButton {
-                onNotificationButtonPressed()
-            }
+    func onCategoryItemPressed(_ category: CharacterOption, imageName: String) {
+        logManager.trackEvent(event: Event.categoryItemPressed(category: category))
+        path.append(.category(category: category, imageName: imageName))
     }
-    private var loadingIndicator: some View {
-        ProgressView()
-            .ignoresSafeArea()
-            .removeListRowFormatting()
+    func onPopularItemPressed(avatar: AvatarModel) {
+        logManager.trackEvent(event: Event.popularAvatarPressed(avatar: avatar))
+        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
-    private var errorMessageView: some View {
-        VStack(alignment: .center, spacing: 8) {
-            Text("Error")
-                .font(.headline)
-            Text("Please check your internet connection and try again")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Button("Try again") {
-                logManager.trackEvent(event: Event.tryAgainPressed)
-                Task {
-                    await loadFeaturedAvatars()
-                }
-                Task {
-                    await loadPopularAvatars()
-                }
-            }
-        }
+    func onFeaturedAvatarPressed(avatar: AvatarModel) {
+        logManager.trackEvent(event: Event.featuredAvatarPressed(avatar: avatar))
+        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
-    private var devSettingsButton: some View {
-        Text("DEV")
-            .anyButton {
-                showDevSettings = true
-            }
-    }
-    private func loadFeaturedAvatars() async {
+    func loadFeaturedAvatars() async {
         logManager.trackEvent(event: Event.loadFeaturedAvatarsStart)
         guard featuredAvatars.isEmpty else { return }
         isLoadingFeatured = true
         do {
-            self.featuredAvatars = try await avatarManager.getFeaturedAvatars()
+            featuredAvatars = try await avatarManager.getFeaturedAvatars()
             logManager.trackEvent(event: Event.loadFeaturedAvatarsSuccess(avatars: featuredAvatars))
         } catch {
             logManager.trackEvent(event: Event.loadFeaturedAvatarsFail(error: error))
         }
         isLoadingFeatured = false
     }
-    private func loadPopularAvatars() async {
+    func loadPopularAvatars() async {
         logManager.trackEvent(event: Event.loadPopularAvatarsStart)
         do {
             isLoadingPopular = true
@@ -218,82 +114,6 @@ struct ExploreView: View {
             logManager.trackEvent(event: Event.loadPopularAvatarsFail(error: error))
         }
         isLoadingPopular = false
-    }
-    private var featuredSection: some View {
-        Section {
-            CarouselViewBuilder(
-                items: featuredAvatars,
-                content: { item in
-                    HeroCellView(
-                        imageStringURL: item.profileImageName,
-                        title: item.name,
-                        subTitle: item.characterDescription
-                    )
-                    .padding(.horizontal)
-                    .anyButton {
-                        onFeaturedAvatarPressed(avatar: item)
-                    }
-                },
-                selection: nil
-            )
-            .frame(height: Screen.height * 0.3)
-            .removeListRowFormatting()
-        } header: {
-            Text("Featured")
-        }
-    }
-    private var categorySection: some View {
-        Section {
-            ScrollView(.horizontal) {
-                HStack(spacing: 16) {
-                    ForEach(categories, id: \.self) { category in
-                        if let imageName = featuredAvatars.first(where: {$0.characterOption == category})?.profileImageName {
-                            CategoryCellView(image: imageName, title: category.rawValue.capitalized)
-                            .frame(width: 150, height: 150)
-                            .anyButton {
-                                onCategoryItemPressed(category, imageName: imageName)
-                            }
-                        }
-                    }
-                }
-            }
-            .scrollTargetLayout()
-            .scrollTargetBehavior(.viewAligned)
-            .contentMargins(.horizontal, 16)
-            .scrollIndicators(.hidden)
-            .removeListRowFormatting()
-        } header: {
-            Text("Categories")
-        }
-    }
-    private var popularSection: some View {
-        Section {
-            ForEach(popularAvatars, id: \.self) { avatar in
-                CustomListCellView(
-                    imageURL: avatar.profileImageName,
-                    title: avatar.name,
-                    subtitle: avatar.characterDescription
-                )
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .anyButton(.highlight) {
-                    onPopularItemPressed(avatar: avatar)
-                }
-            }
-        } header: {
-            Text("Popular")
-        }
-    }
-    private func onCategoryItemPressed(_ category: CharacterOption, imageName: String) {
-        logManager.trackEvent(event: Event.categoryItemPressed(category: category))
-        path.append(.category(category: category, imageName: imageName))
-    }
-    private func onPopularItemPressed(avatar: AvatarModel) {
-        logManager.trackEvent(event: Event.popularAvatarPressed(avatar: avatar))
-        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
-    }
-    private func onFeaturedAvatarPressed(avatar: AvatarModel) {
-        logManager.trackEvent(event: Event.featuredAvatarPressed(avatar: avatar))
-        path.append(.chat(avatarId: avatar.avatarId, chat: nil))
     }
     enum Event: LoggableEvent {
         case loadFeaturedAvatarsStart, loadFeaturedAvatarsSuccess(avatars: [AvatarModel]), loadFeaturedAvatarsFail(error: Error)
@@ -361,44 +181,309 @@ struct ExploreView: View {
         }
     }
 }
+struct ExploreView: View {
+    @State var viewModel: ExploreViewModel
+
+    var isDevOrMock: Bool {
+        #if DEV || MOCK
+        return true
+        #else
+        return false
+        #endif
+    }
+    var body: some View {
+        NavigationStack(path: $viewModel.path) {
+            List {
+                if viewModel.featuredAvatars.isEmpty && viewModel.popularAvatars.isEmpty {
+                    ZStack {
+                        if viewModel.isLoadingFeatured || viewModel.isLoadingPopular {
+                            loadingIndicator
+                        } else {
+                            errorMessageView
+                        }
+                    }
+                } else {
+                    Group {
+                        if viewModel.abTestManager.activeTests.categoryRowTest == .top {
+                            categorySection
+                        }
+                        featuredSection
+                        if viewModel.abTestManager.activeTests.categoryRowTest == .original {
+                            categorySection
+                        }
+                    }
+                    .listRowSeparator(.hidden)
+                    popularSection
+                }
+            }
+            .listStyle(.grouped)
+            .navigationTitle("Explore")
+            .toolbar(content: {
+                ToolbarItem(placement: .topBarLeading) {
+                    if isDevOrMock {
+                        devSettingsButton
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if viewModel.showNotificationButton {
+                        notificationButton
+                    }
+                }
+            })
+            .sheet(isPresented: $viewModel.showDevSettings) {
+                DevSettingsView(showSettings: $viewModel.showDevSettings)
+            }
+            .sheet(isPresented: $viewModel.showCreateAccountView) {
+                CreateAccountView()
+                    .presentationDetents([.medium])
+            }
+            .screenAppearAnalytic(name: "ExploreView")
+            .navigationDestinationForCoreModules(path: $viewModel.path)
+            .task {
+                await viewModel.loadFeaturedAvatars()
+            }
+            .task {
+                await viewModel.loadPopularAvatars()
+            }
+            .task {
+                await viewModel.shouldShowNotificationButton()
+            }
+            .onFirstAppear {
+                viewModel.schedulePushNotifications()
+                viewModel.showCreateAcountScreenIfNeeded()
+            }
+            .onOpenURL { url in
+                viewModel.handleDeepLink(url: url)
+            }
+        }
+    }
+
+    private var pushNotificationModal: some View {
+        CustomModalView(
+            title: "Enable Notifications",
+            subTitle: "Stay updated with important alerts and reminders.",
+            primaryButtonTitle: "Allow",
+            primaryButtonAction: {
+                viewModel.pushNotifModalAllowPressed()
+            },
+            secondaryButtonTitle: "Not Now",
+            secondaryButtonAction: {
+                viewModel.pushNotifModalAllowPressed()
+            }
+        )
+    }
+
+    private var notificationButton: some View {
+        Image(systemName: "bell.fill")
+            .font(.headline)
+            .padding(4)
+            .tappableText()
+            .foregroundStyle(.accent)
+            .anyButton {
+                viewModel.onNotificationButtonPressed()
+            }
+    }
+    private var loadingIndicator: some View {
+        ProgressView()
+            .ignoresSafeArea()
+            .removeListRowFormatting()
+    }
+    private var errorMessageView: some View {
+        VStack(alignment: .center, spacing: 8) {
+            Text("Error")
+                .font(.headline)
+            Text("Please check your internet connection and try again")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Button("Try again") {
+                Task {
+                    await viewModel.loadFeaturedAvatars()
+                }
+                Task {
+                    await viewModel.loadPopularAvatars()
+                }
+            }
+        }
+    }
+    private var devSettingsButton: some View {
+        Text("DEV")
+            .anyButton {
+                viewModel.showDevSettings = true
+            }
+    }
+
+    private var featuredSection: some View {
+        Section {
+            CarouselViewBuilder(
+                items: viewModel.featuredAvatars,
+                content: { item in
+                    HeroCellView(
+                        imageStringURL: item.profileImageName,
+                        title: item.name,
+                        subTitle: item.characterDescription
+                    )
+                    .padding(.horizontal)
+                    .anyButton {
+                        viewModel.onFeaturedAvatarPressed(avatar: item)
+                    }
+                },
+                selection: nil
+            )
+            .frame(height: Screen.height * 0.3)
+            .removeListRowFormatting()
+        } header: {
+            Text("Featured")
+        }
+    }
+    private var categorySection: some View {
+        Section {
+            ScrollView(.horizontal) {
+                HStack(spacing: 16) {
+                    ForEach(viewModel.categories, id: \.self) { category in
+                        if let imageName = viewModel.featuredAvatars.first(where: {$0.characterOption == category})?.profileImageName {
+                            CategoryCellView(image: imageName, title: category.rawValue.capitalized)
+                            .frame(width: 150, height: 150)
+                            .anyButton {
+                                viewModel.onCategoryItemPressed(category, imageName: imageName)
+                            }
+                        }
+                    }
+                }
+            }
+            .scrollTargetLayout()
+            .scrollTargetBehavior(.viewAligned)
+            .contentMargins(.horizontal, 16)
+            .scrollIndicators(.hidden)
+            .removeListRowFormatting()
+        } header: {
+            Text("Categories")
+        }
+    }
+    private var popularSection: some View {
+        Section {
+            ForEach(viewModel.popularAvatars, id: \.self) { avatar in
+                CustomListCellView(
+                    imageURL: avatar.profileImageName,
+                    title: avatar.name,
+                    subtitle: avatar.characterDescription
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .anyButton(.highlight) {
+                    viewModel.onPopularItemPressed(avatar: avatar)
+                }
+            }
+        } header: {
+            Text("Popular")
+        }
+    }
+}
 
 #Preview("Has Data") {
-    ExploreView()
+    let container = DevPreview.shared.container
+    container.register(AvatarManager.self, instance: AvatarManager(service: MockAvatarService()))
+    return ExploreView(viewModel: ExploreViewModel(container: container))
         .environment(AvatarManager(service: MockAvatarService()))
         .previewEnvironment()
 }
 
 #Preview("No avatars") {
-    ExploreView()
+    let container = DevPreview.shared.container
+    container.register(AvatarManager.self, instance: AvatarManager(service: MockAvatarService(avatars: [], delay: 3)))
+    return ExploreView(viewModel: ExploreViewModel(container: container))
         .environment(AvatarManager(service: MockAvatarService(avatars: [], delay: 3)))
         .previewEnvironment()
 }
 
 #Preview("CreateAccTest") {
-    ExploreView()
-        .environment(AvatarManager(service: MockAvatarService(avatars: [], delay: 3)))
-        .environment(AuthManager(service: MockAuthService(user: .mock(isAnonymous: true))))
-        .environment(ABTestManager(service: MockABTestService(createAccountTest: true)))
+    let container = DevPreview.shared.container
+
+    let avatarManager = AvatarManager(
+        service: MockAvatarService(avatars: [], delay: 3)
+    )
+    let authManager = AuthManager(
+        service: MockAuthService(user: .mock(isAnonymous: true))
+    )
+    let abTestManager = ABTestManager(
+        service: MockABTestService(createAccountTest: true)
+    )
+
+    container.register(AvatarManager.self, instance: avatarManager)
+    container.register(AuthManager.self, instance: authManager)
+    container.register(ABTestManager.self, instance: abTestManager)
+
+    return ExploreView(viewModel: ExploreViewModel(container: container))
+        .environment(avatarManager)
+        .environment(authManager)
+        .environment(abTestManager)
         .previewEnvironment()
 }
 #Preview("Delay") {
-    ExploreView()
-        .environment(AvatarManager(service: MockAvatarService(delay: 5)))
+    let container = DevPreview.shared.container
+
+    let avatarManager = AvatarManager(
+        service: MockAvatarService(delay: 5)
+    )
+
+    container.register(AvatarManager.self, instance: avatarManager)
+
+    return ExploreView(viewModel: ExploreViewModel(container: container))
+        .environment(avatarManager)
         .previewEnvironment()
 }
 
 #Preview("CategoryRowTes: Original") {
-    ExploreView()
-        .environment(ABTestManager(service: MockABTestService(categoryRowTest: .default)))
+    let container = DevPreview.shared.container
+
+    let avatarManager = AvatarManager(
+        service: MockAvatarService()
+    )
+    let abTestManager = ABTestManager(
+        service: MockABTestService(categoryRowTest: .default)
+    )
+
+    container.register(AvatarManager.self, instance: avatarManager)
+    container.register(ABTestManager.self, instance: abTestManager)
+
+    return ExploreView(viewModel: ExploreViewModel(container: container))
+        .environment(avatarManager)
+        .environment(abTestManager)
         .previewEnvironment()
 }
+
 #Preview("CategoryRowTes: top") {
-    ExploreView()
-        .environment(ABTestManager(service: MockABTestService(categoryRowTest: .top)))
+    let container = DevPreview.shared.container
+
+    let avatarManager = AvatarManager(
+        service: MockAvatarService()
+    )
+    let abTestManager = ABTestManager(
+        service: MockABTestService(categoryRowTest: .top)
+    )
+
+    container.register(AvatarManager.self, instance: avatarManager)
+    container.register(ABTestManager.self, instance: abTestManager)
+
+    return ExploreView(viewModel: ExploreViewModel(container: container))
+        .environment(avatarManager)
+        .environment(abTestManager)
         .previewEnvironment()
 }
+
 #Preview("CategoryRowTes: hidden") {
-    ExploreView()
-        .environment(ABTestManager(service: MockABTestService(categoryRowTest: .hidden)))
+    let container = DevPreview.shared.container
+
+    let avatarManager = AvatarManager(
+        service: MockAvatarService()
+    )
+    let abTestManager = ABTestManager(
+        service: MockABTestService(categoryRowTest: .hidden)
+    )
+
+    container.register(AvatarManager.self, instance: avatarManager)
+    container.register(ABTestManager.self, instance: abTestManager)
+
+    return ExploreView(viewModel: ExploreViewModel(container: container))
+        .environment(avatarManager)
+        .environment(abTestManager)
         .previewEnvironment()
 }

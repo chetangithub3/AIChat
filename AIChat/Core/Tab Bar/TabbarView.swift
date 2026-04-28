@@ -17,7 +17,7 @@ struct TabbarView: View {
     @Environment(DependencyContainer.self) private var container
     var body: some View {
         TabView {
-            ExploreView()
+            ExploreView(viewModel: ExploreViewModel(container: container))
                 .tabItem {
                     Label("Explore", systemImage: "eyes")
                 }
